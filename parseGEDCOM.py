@@ -10,8 +10,11 @@ indi = {}
 
 fam = {}
 
+# Flags help select which dict and where to input data
 current = ""
 which_dict = ""
+dated_event = ""
+date = False
 
 f = open(sys.argv[1], "r")
 while True:
@@ -29,9 +32,8 @@ while True:
     arg = ""
     tag = ""
     valid = False
-    date = False
-
-    # For every word in the current line, checks if it is in the dictionary of tags.
+    # For every word in the current line, checks if
+    # it is in the dictionary of tags.
     # If tag is in the dictionary and it is at the right level, tag is valid
     # If tag is in the dictionary but isn't at the right level, tag is invalid
     for arg in line:
@@ -53,7 +55,6 @@ while True:
             current = line[1]
             which_dict = "FAM"
             fam[current] = {}
-
     # Gets rid of the tag from the array
     if arg in tags.keys():
         line.remove(arg)
@@ -61,19 +62,31 @@ while True:
     # Deletes the level from the array
     del line[0]
 
+    if which_dict == "INDI" and arg != "INDI" and valid is True:
+        if date is True:
+            indi[current][dated_event] = ' '.join(line)
+            date = False
+        elif arg == "BIRT":
+            date = True
+            dated_event = arg
+        else:
+            indi[current][arg] = ' '.join(line)
 
-    if which_dict == "INDI" and arg != "INDI" and valid == True:
-        indi[current][arg] = ' '.join(line)
+    if which_dict == "FAM" and arg != "FAM" and valid is True:
+        if date is True:
+            fam[current][dated_event] = ' '.join(line)
+            date = False
+        if arg == "MARR" or arg == "DIV":
+            date = True
+            dated_event = arg
+        else:
+            fam[current][arg] = ' '.join(line)
 
-    if which_dict == "FAM" and arg != "FAM" and valid == True:
-        fam[current][arg] = ' '.join(line)
-
-    # Accounts for the other possible tags that aren't in the dictionary of valid tags
+    # Accounts for the other possible tags that aren't in the dictionary
+    # of valid tags
     # if not valid and len(line) > 1 and (line[1].isupper() or "_" in line[1]):
 
         # del line[1]
-
-    
 
     # Adds the arguments to the output string
     # for x in line:
