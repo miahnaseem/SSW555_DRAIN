@@ -62,10 +62,13 @@ while True:
     # Deletes the level from the array
     del line[0]
 
+    # Adds tag and information in tag under respect current individual entry
+    # Dated events are stored and entered when date flag raised
     if which_dict == "INDI" and arg != "INDI" and valid is True:
         if date is True:
             indi[current][dated_event] = ' '.join(line)
             date = False
+        # As DEAT has argument "Y", add extra indi entry for death date
         elif ddate is True:
             indi[current]["DEAT_DATE"] = ' '.join(line)
             ddate = False
@@ -74,10 +77,11 @@ while True:
             indi[current][arg] = ' '.join(line)
         elif arg == "BIRT":
             date = True
-            dated_event = arg            
+            dated_event = arg
         else:
             indi[current][arg] = ' '.join(line)
-
+    # Dated events are stored and entered when date flag raised
+    # Adds tag and information in tag under respective current family entry
     if which_dict == "FAM" and arg != "FAM" and valid is True:
         if date is True:
             fam[current][dated_event] = ' '.join(line)
@@ -98,9 +102,12 @@ while True:
     # for x in line:
     #     out += x + " "
 
+# Iterates through indi dict printing unique identifier and NAME in order
 for key in indi:
     print(key + ": " + indi[key]["NAME"])
 
+# Iterates through fam dict printing unique identifier and using
+# HUSB + WIFE identifier to print married pair names
 for key in fam:
     print(key + ": " + indi[fam[key]["HUSB"]]["NAME"] + " and " + indi[fam[key]["WIFE"]]["NAME"])    
 
