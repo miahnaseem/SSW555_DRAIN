@@ -15,7 +15,7 @@ current = ""
 which_dict = ""
 dated_event = ""
 date = False
-
+ddate = False
 f = open(sys.argv[1], "r")
 while True:
     # Get one line of the GEDCOM file at a time
@@ -66,9 +66,15 @@ while True:
         if date is True:
             indi[current][dated_event] = ' '.join(line)
             date = False
+        elif ddate is True:
+            indi[current]["DEAT_DATE"] = ' '.join(line)
+            ddate = False
+        elif arg == "DEAT":
+            ddate = True
+            indi[current][arg] = ' '.join(line)
         elif arg == "BIRT":
             date = True
-            dated_event = arg
+            dated_event = arg            
         else:
             indi[current][arg] = ' '.join(line)
 
@@ -92,6 +98,10 @@ while True:
     # for x in line:
     #     out += x + " "
 
-print(indi)
-print(fam)
+for key in indi:
+    print(key + ": " + indi[key]["NAME"])
+
+for key in fam:
+    print(key + ": " + indi[fam[key]["HUSB"]]["NAME"] + " and " + indi[fam[key]["WIFE"]]["NAME"])    
+
 f.close()
