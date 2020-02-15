@@ -127,6 +127,8 @@ for key in indi:
     inditable.add_row([key, indi[key]["NAME"],  indi[key]["SEX"], indi[key]["BIRT"], str(age)])
 
 print(inditable)
+
+
 # Iterates through fam dict printing unique identifier and using
 # HUSB + WIFE identifier to print married pair names
 for key in fam:
