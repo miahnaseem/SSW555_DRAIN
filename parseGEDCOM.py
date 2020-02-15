@@ -1,5 +1,6 @@
 import sys
 import datetime
+from prettytable import PrettyTable
 # Dictionary of all the valid tags and their corresponding level
 tags = {
     "INDI": "0", "NAME": "1", "SEX": "1", "BIRT": "1", "DEAT": "1", "FAMC": "1", "FAMS": "1", "FAM": "0", "MARR": "1",
@@ -115,15 +116,17 @@ while True:
     #     out += x + " "
 
 # gets current date
+inditable = PrettyTable()
+inditable.field_names = ["ID", "Name", "Gender", "Birthday", "Age"]
 currentDate = datetime.date.today()
 # Iterates through indi dict printing unique identifier and NAME in order
 for key in indi:
     # calculates age 
     birth = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
     age = (currentDate - birth).days//365
-    print(key + " | " + indi[key]["NAME"] + " | " +  indi[key]["SEX"] + " | " + indi[key]["BIRT"] + " | " + str(age)) + " | ")
+    inditable.add_row([key, indi[key]["NAME"],  indi[key]["SEX"], indi[key]["BIRT"], str(age)])
 
-
+print(inditable)
 # Iterates through fam dict printing unique identifier and using
 # HUSB + WIFE identifier to print married pair names
 for key in fam:
