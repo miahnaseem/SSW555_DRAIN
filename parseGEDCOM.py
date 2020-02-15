@@ -1,10 +1,22 @@
 import sys
-
+import datetime
 # Dictionary of all the valid tags and their corresponding level
 tags = {
     "INDI": "0", "NAME": "1", "SEX": "1", "BIRT": "1", "DEAT": "1", "FAMC": "1", "FAMS": "1", "FAM": "0", "MARR": "1",
     "HUSB": "1", "WIFE": "1", "CHIL": "1", "DIV": "1", "DATE": "2", "HEAD": "0", "TRLR": "0", "NOTE": "0"
 }
+
+# Dictionary of the months for easy conversion from name to number
+months = {
+    "JAN": 1, "FEB": 2, "MAR": 3, "APR": 4, "MAY": 5, "JUN": 6, "JUL": 7, "AUG": 8, "SEP": 9, "OCT": 10, "NOV": 11, "DEC": 12
+}
+
+# formats the date into YYYY-MM-DD
+def formatDate(date):
+    newDate = date.split()
+    newDate[1] = str(months[newDate[1]])
+    return newDate[2] + "-" + newDate[1] + "-" + newDate[0]
+
 # Dictionaries to save information about individuals or families
 indi = {}
 
@@ -102,9 +114,15 @@ while True:
     # for x in line:
     #     out += x + " "
 
+# gets current date
+currentDate = datetime.date.today()
 # Iterates through indi dict printing unique identifier and NAME in order
 for key in indi:
-    print(key + ": " + indi[key]["NAME"])
+    # calculates age 
+    birth = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
+    age = (currentDate - birth).days//365
+    print(key + " | " + indi[key]["NAME"] + " | " +  indi[key]["SEX"] + " | " + indi[key]["BIRT"] + " | " + str(age)) + " | ")
+
 
 # Iterates through fam dict printing unique identifier and using
 # HUSB + WIFE identifier to print married pair names
