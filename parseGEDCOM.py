@@ -134,7 +134,7 @@ for key in indi:
         death = datetime.datetime.strptime(formatDate(death), '%Y-%m-%d').date()
         age = (death - birth).days//365
 
-    indiTable.add_row([key, indi[key]["NAME"],  indi[key]["SEX"], indi[key]["BIRT"], str(age), alive, death])
+    indiTable.add_row([key, indi[key]["NAME"],  indi[key]["SEX"], indi[key]["BIRT"], age, alive, death])
 
 print(indiTable)
 
