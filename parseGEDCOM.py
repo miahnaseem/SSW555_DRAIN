@@ -116,17 +116,25 @@ while True:
     #     out += x + " "
 
 # gets current date
-inditable = PrettyTable()
-inditable.field_names = ["ID", "Name", "Gender", "Birthday", "Age"]
+indiTable = PrettyTable()
+indiTable.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "Death"]
 currentDate = datetime.date.today()
 # Iterates through indi dict printing unique identifier and NAME in order
 for key in indi:
     # calculates age 
     birth = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
     age = (currentDate - birth).days//365
-    inditable.add_row([key, indi[key]["NAME"],  indi[key]["SEX"], indi[key]["BIRT"], str(age)])
+    alive = ""
+    death = ""
+    if "DEAT" not in indi[key]:
+        alive = True
+        death = "N/A"
+    else:
+        alive = False
+        death = indi[key]["DEAT_DATE"]
+    indiTable.add_row([key, indi[key]["NAME"],  indi[key]["SEX"], indi[key]["BIRT"], str(age), alive, death])
 
-print(inditable)
+print(indiTable)
 
 
 # Iterates through fam dict printing unique identifier and using
