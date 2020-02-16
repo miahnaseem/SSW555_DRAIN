@@ -12,16 +12,23 @@ months = {
     "JAN": 1, "FEB": 2, "MAR": 3, "APR": 4, "MAY": 5, "JUN": 6, "JUL": 7, "AUG": 8, "SEP": 9, "OCT": 10, "NOV": 11, "DEC": 12
 }
 
+# Dictionaries to save information about individuals or families
+indi = {}
+
+fam = {}
+
 # formats the date into YYYY-MM-DD
 def formatDate(date):
     newDate = date.split()
     newDate[1] = str(months[newDate[1]])
     return newDate[2] + "-" + newDate[1] + "-" + newDate[0]
 
-# Dictionaries to save information about individuals or families
-indi = {}
-
-fam = {}
+def getChildren(family):
+    children = []
+    for elem in fam[family]:
+        if elem == "CHIL":
+            children.append(fam[family][elem])
+    return children
 
 # Flags help select which dict and where to input data
 current = ""
@@ -103,17 +110,8 @@ while True:
             date = True
             dated_event = arg
         else:
-            fam[current][arg] = ' '.join(line)
-
-    # Accounts for the other possible tags that aren't in the dictionary
-    # of valid tags
-    # if not valid and len(line) > 1 and (line[1].isupper() or "_" in line[1]):
-
-        # del line[1]
-
-    # Adds the arguments to the output string
-    # for x in line:
-    #     out += x + " "
+            if arg == "HUSB" or arg == "WIFE" or arg == "CHIL":
+                fam[current][arg] = ' '.join(line)
 
 # gets current date
 indiTable = PrettyTable()
@@ -145,10 +143,32 @@ for key in indi:
 
 print(indiTable)
 
-
-# Iterates through fam dict printing unique identifier and using
-# HUSB + WIFE identifier to print married pair names 
+# Makes a prettytable with the following fields
+famTable = PrettyTable()
+famTable.field_names = ["ID", "Married", "Divorced", "Husband ID", "Husband Name", "Wife ID", "Wife Name", "Children"]
+# Iterates through fam dict to get the necessary information to use in the prettytable
 for key in fam:
-    print(key + ": " + indi[fam[key]["HUSB"]]["NAME"] + " and " + indi[fam[key]["WIFE"]]["NAME"])    
+    # Gets the marriage date
+    marry = datetime.datetime.strptime(formatDate(fam[key]["MARR"]), '%Y-%m-%d').date()
+
+    # Gets the divorce date
+    if "DIV" not in fam[key]:
+        div = False
+        divorce = "NA"
+    else:
+        div = True
+        divorce = fam[key]["DIV_DATE"]
+
+    # Gets the children of the family
+    childs = getChildren(key)
+    if not childs:
+        children = "NA"
+    else:
+        children = childs
+    
+    # Makes the table
+    famTable.add_row([key, marry, divorce, fam[key]["HUSB"], indi[fam[key]["HUSB"]]["NAME"], fam[key]["WIFE"], indi[fam[key]["WIFE"]]["NAME"], children])
+
+print(famTable)
 
 f.close()
