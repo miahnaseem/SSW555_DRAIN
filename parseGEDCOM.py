@@ -121,15 +121,22 @@ indiTable.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "De
 currentDate = datetime.date.today()
 # Iterates through indi dict printing unique identifier and NAME in order
 for key in indi:
+    
+    #formats birth date
     birth = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
+    #sets the values for alive and death columns
     if "DEAT" not in indi[key]:
         alive = True
         death = "NA"
     else:
         alive = False
         death = indi[key]["DEAT_DATE"]
+    #calculates age
+    #if the person is alive, the age will be calculated using  current date - birth date
     if alive:
         age = (currentDate - birth).days//365
+    #if they're dead, the age will be calculated using death date - birth date
+    #also death date variable is made to put into table
     else:
         death = datetime.datetime.strptime(formatDate(death), '%Y-%m-%d').date()
         age = (death - birth).days//365
