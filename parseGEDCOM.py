@@ -23,14 +23,6 @@ def formatDate(date):
     newDate[1] = str(months[newDate[1]])
     return newDate[2] + "-" + newDate[1] + "-" + newDate[0]
 
-# loops through family dictionary and return list of Children from family ID
-def getChildren(family):
-    children = []
-    for elem in fam[family]:
-        if elem == "CHIL":
-            children.append(fam[family][elem])
-    return children
-
 # Flags help select which dict and where to input data
 current = ""
 which_dict = ""
@@ -169,7 +161,10 @@ for key in fam:
         divorce = fam[key]["DIV"]
 
     # Gets the children of the family
-    childs = getChildren(key)
+    childs = []
+    for elem in fam[key]:
+        if elem == "CHIL":
+            childs.append(fam[key][elem])
     if not childs:
         children = "NA"
     else:
