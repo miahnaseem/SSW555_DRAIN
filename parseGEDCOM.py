@@ -23,6 +23,7 @@ def formatDate(date):
     newDate[1] = str(months[newDate[1]])
     return newDate[2] + "-" + newDate[1] + "-" + newDate[0]
 
+# loops through family dictionary and return list of Children from family ID
 def getChildren(family):
     children = []
     for elem in fam[family]:
@@ -115,7 +116,7 @@ while True:
 
 # gets current date
 indiTable = PrettyTable()
-indiTable.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "Death"]
+indiTable.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "Death", "Child", "Spouse"]
 currentDate = datetime.date.today()
 # Iterates through indi dict printing unique identifier and NAME in order
 for key in indi:
@@ -139,7 +140,15 @@ for key in indi:
         death = datetime.datetime.strptime(formatDate(death), '%Y-%m-%d').date()
         age = (death - birth).days//365
 
-    indiTable.add_row([key, indi[key]["NAME"],  indi[key]["SEX"], indi[key]["BIRT"], age, alive, death])
+    if "FAMS" in indi[key]:
+        spouse = indi[key]["FAMS"]
+    else:
+        spouse = "NA"
+    if "FAMC" in indi[key]:
+        child = indi[key]["FAMC"]
+    else:
+        child = "NA"
+    indiTable.add_row([key, indi[key]["NAME"],  indi[key]["SEX"], indi[key]["BIRT"], age, alive, death, child, spouse])
 
 print(indiTable)
 
@@ -157,7 +166,7 @@ for key in fam:
         divorce = "NA"
     else:
         div = True
-        divorce = fam[key]["DIV_DATE"]
+        divorce = fam[key]["DIV"]
 
     # Gets the children of the family
     childs = getChildren(key)
