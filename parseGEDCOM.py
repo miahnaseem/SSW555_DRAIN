@@ -121,9 +121,7 @@ indiTable.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "De
 currentDate = datetime.date.today()
 # Iterates through indi dict printing unique identifier and NAME in order
 for key in indi:
-    # calculates age 
     birth = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
-    age = (currentDate - birth).days//365
     alive = ""
     death = ""
     if "DEAT" not in indi[key]:
@@ -132,13 +130,19 @@ for key in indi:
     else:
         alive = False
         death = indi[key]["DEAT_DATE"]
+    if alive:
+        age = (currentDate - birth).days//365
+    else:
+        death = datetime.datetime.strptime(formatDate(death), '%Y-%m-%d').date()
+        age = (death - birth).days//365
+
     indiTable.add_row([key, indi[key]["NAME"],  indi[key]["SEX"], indi[key]["BIRT"], str(age), alive, death])
 
 print(indiTable)
 
 
 # Iterates through fam dict printing unique identifier and using
-# HUSB + WIFE identifier to print married pair names
+# HUSB + WIFE identifier to print married pair names 
 for key in fam:
     print(key + ": " + indi[fam[key]["HUSB"]]["NAME"] + " and " + indi[fam[key]["WIFE"]]["NAME"])    
 
