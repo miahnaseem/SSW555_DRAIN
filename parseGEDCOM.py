@@ -122,11 +122,9 @@ currentDate = datetime.date.today()
 # Iterates through indi dict printing unique identifier and NAME in order
 for key in indi:
     birth = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
-    alive = ""
-    death = ""
     if "DEAT" not in indi[key]:
         alive = True
-        death = "N/A"
+        death = "NA"
     else:
         alive = False
         death = indi[key]["DEAT_DATE"]
