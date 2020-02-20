@@ -23,7 +23,7 @@ def formatDate(date):
     newDate[1] = str(months[newDate[1]])
     return newDate[2] + "-" + newDate[1] + "-" + newDate[0]
 
-# Checks user story 7
+# Checks if anyone was or is more than 150 years old
 def checkUS07():
     result = ""
     for row in indiTable:
@@ -99,6 +99,7 @@ def checkUS09():
                     result += "ERROR: FAMILY: US09: " + row.get_string(fields = ["ID"]).strip() + ": Birthday of (" + j + ") on " + str(birth) + " after husband's (" + husbID + ") death on " + str(husbDeath) + "\n"
     return result
 
+# Checks if anyone was married before they were 14 years old 
 def checkUS10():
     result = ""
     for row in famTable:
