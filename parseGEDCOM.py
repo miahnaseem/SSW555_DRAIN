@@ -23,6 +23,37 @@ def formatDate(date):
     newDate[1] = str(months[newDate[1]])
     return newDate[2] + "-" + newDate[1] + "-" + newDate[0]
 
+#checks user story 08
+def checkUS08():
+    # loops through famTable
+    for row in famTable:
+        # removes headers and borders
+        row.border = False
+        row.header = False
+        # converts marriageDate from string to date type
+        marriageDate = datetime.datetime.strptime(row.get_string(fields = ["Married"]).strip(), '%Y-%m-%d').date()
+        # checks if they have children
+        if row.get_string(fields = ["Children"]).strip() != "NA":
+            # moves all children into a list
+            children = list(row.get_string(fields = ["Children"]).replace("[","").replace("]", "").strip().split(","))
+            # loops through indiTable
+            for rowI in indiTable:
+                # removes headers and borders 
+                rowI.border = False
+                rowI.header = False
+                # loops through children 
+                for i in children:
+                    id = "\'" + rowI.get_string(fields=["ID"]).strip() + "\'"
+                    if id == i:
+                        # compares marriage and birth date
+                        birthDate = datetime.datetime.strptime(rowI.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
+                        if birthDate < marriageDate:
+                            print("ANOMALY: FAMILY: US08: " + row.get_string(fields=["ID"]) + ": Child " + id + " born " + rowI.get_string(fields = ["Birthday"]).strip() + " before marriage on " + row.get_string(fields = ["Married"]).strip())
+    return
+
+def checkUS09():
+
+
 # Flags help select which dict and where to input data
 current = ""
 which_dict = ""
@@ -106,6 +137,7 @@ while True:
             if arg == "HUSB" or arg == "WIFE" or arg == "CHIL":
                 fam[current][arg] = ' '.join(line)
 
+
 # gets current date
 indiTable = PrettyTable()
 indiTable.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "Death", "Child", "Spouse"]
@@ -140,7 +172,7 @@ for key in indi:
         child = indi[key]["FAMC"]
     else:
         child = "NA"
-    indiTable.add_row([key, indi[key]["NAME"],  indi[key]["SEX"], indi[key]["BIRT"], age, alive, death, child, spouse])
+    indiTable.add_row([key, indi[key]["NAME"],  indi[key]["SEX"], birth, age, alive, death, child, spouse])
 
 print(indiTable)
 
@@ -174,5 +206,8 @@ for key in fam:
     famTable.add_row([key, marry, divorce, fam[key]["HUSB"], indi[fam[key]["HUSB"]]["NAME"], fam[key]["WIFE"], indi[fam[key]["WIFE"]]["NAME"], children])
 
 print(famTable)
+
+
+checkUS08()
 
 f.close()
