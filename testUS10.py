@@ -1,14 +1,9 @@
 import unittest
 import parseGEDCOM
 
-class Age150Test(unittest.TestCase):
-
-    def testBoth14(self):
-        self.assertEqual(parseGEDCOM.checkUS10(), "ANOMALY: FAMILY: US10: @I9@, @I8@: Husband and Wife married before the age of 14")
-    def testHusb14(self):
-        self.assertEqual(parseGEDCOM.checkUS07(), "ANOMALY: FAMILY: US10: @I14@: Husband married before the age of 14")
-    def testWife14(self):
-        self.assertEqual(parseGEDCOM.checkUS07(), "ANOMALY: FAMILY: US10: @I17@: Wife married before the age of 14")
+class us10Test(unittest.TestCase):
+    def testUS10(self):
+        self.assertEqual(parseGEDCOM.checkUS10(), "ANOMALY: FAMILY: US10: @F2@: Husband (@I14@) married before the age of 14\nANOMALY: FAMILY: US10: @F6@: Husband (@I9@) and Wife (@I8@) married before the age of 14\nANOMALY: FAMILY: US10: @F8@: Wife (@I17@) married before the age of 14\n")
 
 if __name__ == "__main__":
     unittest.main()
