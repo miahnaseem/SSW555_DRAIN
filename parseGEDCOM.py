@@ -69,9 +69,6 @@ def checkUS08():
                             print("ANOMALY: FAMILY: US08: " + row.get_string(fields=["ID"]) + ": Child " + id + " born " + rowI.get_string(fields = ["Birthday"]).strip() + " before marriage on " + row.get_string(fields = ["Married"]).strip())
     return
 
-def checkUS09():
-
-
 # Flags help select which dict and where to input data
 current = ""
 which_dict = ""
