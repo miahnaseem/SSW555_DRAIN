@@ -23,6 +23,7 @@ def formatDate(date):
     newDate[1] = str(months[newDate[1]])
     return newDate[2] + "-" + newDate[1] + "-" + newDate[0]
 
+# Checks user story 7
 def checkUS07():
     for row in indiTable:
         # Get rid of the border and header of the pretty table
@@ -39,6 +40,37 @@ def checkUS07():
                 print("ERROR: INDIVIDUAL: US07: " + currID + ": More than 150 years old - Birth date " + currBirth)
             else:
                 print("ERROR: INDIVIDUAL: US07: " + currID + ": More than 150 years old at death - Birth " + currBirth + ": Death " + currDeath)
+
+#checks user story 08
+def checkUS08():
+    # loops through famTable
+    for row in famTable:
+        # removes headers and borders
+        row.border = False
+        row.header = False
+        # converts marriageDate from string to date type
+        marriageDate = datetime.datetime.strptime(row.get_string(fields = ["Married"]).strip(), '%Y-%m-%d').date()
+        # checks if they have children
+        if row.get_string(fields = ["Children"]).strip() != "NA":
+            # moves all children into a list
+            children = list(row.get_string(fields = ["Children"]).replace("[","").replace("]", "").strip().split(","))
+            # loops through indiTable
+            for rowI in indiTable:
+                # removes headers and borders 
+                rowI.border = False
+                rowI.header = False
+                # loops through children 
+                for i in children:
+                    id = "\'" + rowI.get_string(fields=["ID"]).strip() + "\'"
+                    if id == i:
+                        # compares marriage and birth date
+                        birthDate = datetime.datetime.strptime(rowI.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
+                        if birthDate < marriageDate:
+                            print("ANOMALY: FAMILY: US08: " + row.get_string(fields=["ID"]) + ": Child " + id + " born " + rowI.get_string(fields = ["Birthday"]).strip() + " before marriage on " + row.get_string(fields = ["Married"]).strip())
+    return
+
+def checkUS09():
+
 
 # Flags help select which dict and where to input data
 current = ""
@@ -123,6 +155,7 @@ while True:
             if arg == "HUSB" or arg == "WIFE" or arg == "CHIL":
                 fam[current][arg] = ' '.join(line)
 
+
 # gets current date
 indiTable = PrettyTable()
 indiTable.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "Death", "Child", "Spouse"]
@@ -193,5 +226,6 @@ for key in fam:
 print(famTable)
 
 checkUS07()
+checkUS08()
 
 f.close()
