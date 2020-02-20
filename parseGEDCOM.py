@@ -23,7 +23,7 @@ def formatDate(date):
     newDate[1] = str(months[newDate[1]])
     return newDate[2] + "-" + newDate[1] + "-" + newDate[0]
 
-# Checks user story 7
+# Checks if anyone was or is more than 150 years old
 def checkUS07():
     result = ""
     for row in indiTable:
@@ -105,18 +105,26 @@ def checkUS09():
                     result += "ERROR: FAMILY: US09: " + row.get_string(fields = ["ID"]).strip() + ": Birthday of (" + j + ") on " + str(birth) + " after husband's (" + husbID + ") death on " + str(husbDeath) + "\n"
     return result
 
+# Checks if anyone was married before they were 14 years old 
 def checkUS10():
     result = ""
     for row in famTable:
+        # Get rid of the border and header of the pretty table
         row.border = False
         row.header = False
+
+        # Gets the relevant data from the pretty table
         marriageDate = datetime.datetime.strptime(row.get_string(fields = ["Married"]).strip(), '%Y-%m-%d').date()
         husbID = row.get_string(fields = ["Husband ID"]).strip()
         wifeID = row.get_string(fields = ["Wife ID"]).strip()
         husbDate = datetime.datetime.strptime(formatDate(indi[husbID]["BIRT"]), '%Y-%m-%d').date()
         wifeDate = datetime.datetime.strptime(formatDate(indi[wifeID]["BIRT"]), '%Y-%m-%d').date()
+
+        # Calculates the age when the husband and wife got married
         husbAge = (marriageDate - husbDate).days // 365
         wifeAge = (marriageDate - wifeDate).days // 365
+
+        # Checks if either the husband and wife married before they were 14 years old
         if husbAge < 14 and wifeAge < 14:
             result += "ANOMALY: FAMILY: US10: " + row.get_string(fields = ["ID"]).strip() + ": Husband (" + husbID + ") and Wife (" + wifeID + ") married before the age of 14\n"
         elif husbAge < 14:
