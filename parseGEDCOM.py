@@ -23,6 +23,23 @@ def formatDate(date):
     newDate[1] = str(months[newDate[1]])
     return newDate[2] + "-" + newDate[1] + "-" + newDate[0]
 
+def checkUS07():
+    for row in indiTable:
+        # Get rid of the border and header of the pretty table
+        row.border = False
+        row.header = False
+        # Get each relevant data from the pretty table
+        currID = row.get_string(fields=["ID"]).strip()
+        currAge = int(row.get_string(fields=["Age"]).strip(), 10)
+        currBirth = row.get_string(fields=["Birthday"]).strip()
+        currDeath = row.get_string(fields=["Death"]).strip()
+        # Check age and death status
+        if currAge >= 150:
+            if currDeath == "NA":
+                print("ERROR: INDIVIDUAL: US07: " + currID + ": More than 150 years old - Birth date " + currBirth)
+            else:
+                print("ERROR: INDIVIDUAL: US07: " + currID + ": More than 150 years old at death - Birth " + currBirth + ": Death " + currDeath)
+
 # Flags help select which dict and where to input data
 current = ""
 which_dict = ""
@@ -140,7 +157,7 @@ for key in indi:
         child = indi[key]["FAMC"]
     else:
         child = "NA"
-    indiTable.add_row([key, indi[key]["NAME"],  indi[key]["SEX"], indi[key]["BIRT"], age, alive, death, child, spouse])
+    indiTable.add_row([key, indi[key]["NAME"],  indi[key]["SEX"], birth, age, alive, death, child, spouse])
 
 print(indiTable)
 
@@ -174,5 +191,7 @@ for key in fam:
     famTable.add_row([key, marry, divorce, fam[key]["HUSB"], indi[fam[key]["HUSB"]]["NAME"], fam[key]["WIFE"], indi[fam[key]["WIFE"]]["NAME"], children])
 
 print(famTable)
+
+checkUS07()
 
 f.close()
