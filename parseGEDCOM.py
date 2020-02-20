@@ -69,7 +69,23 @@ def checkUS08():
                             print("ANOMALY: FAMILY: US08: " + row.get_string(fields=["ID"]) + ": Child " + id + " born " + rowI.get_string(fields = ["Birthday"]).strip() + " before marriage on " + row.get_string(fields = ["Married"]).strip())
     return
 
-
+def checkUS10():
+    for row in famTable:
+        row.border = False
+        row.header = False
+        marriageDate = datetime.datetime.strptime(row.get_string(fields = ["Married"]).strip(), '%Y-%m-%d').date()
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        husbDate = datetime.datetime.strptime(formatDate(indi[husbID]["BIRT"]), '%Y-%m-%d').date()
+        wifeDate = datetime.datetime.strptime(formatDate(indi[wifeID]["BIRT"]), '%Y-%m-%d').date()
+        husbAge = (marriageDate - husbDate).days // 365
+        wifeAge = (marriageDate - wifeDate).days // 365
+        if husbAge < 14 and wifeAge < 14:
+            print("ANOMALY: FAMILY: US10: " + husbID + ", " + wifeID + ": Husband and Wife married before the age of 14")
+        elif husbAge < 14:
+            print("ANOMALY: FAMILY: US10: " + husbID + ": Husband married before the age of 14")
+        elif wifeAge < 14:
+            print("ANOMALY: FAMILY: US10: " + wifeID + ": Wife married before the age of 14")
 
 # Flags help select which dict and where to input data
 current = ""
@@ -207,7 +223,7 @@ for key in fam:
         divorce = "NA"
     else:
         div = True
-        divorce = fam[key]["DIV"]
+        divorce = datetime.datetime.strptime(formatDate(fam[key]["DIV"]), '%Y-%m-%d').date()
 
     # Gets the children of the family
     childs = []
@@ -226,5 +242,7 @@ print(famTable)
 
 checkUS07()
 checkUS08()
+
+checkUS10()
 
 f.close()
