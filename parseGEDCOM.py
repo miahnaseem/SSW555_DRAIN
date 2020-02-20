@@ -43,7 +43,7 @@ def checkUS07():
                 result += "ERROR: INDIVIDUAL: US07: " + currID + ": More than 150 years old at death - Birth " + currBirth + ": Death " + currDeath + "\n"
     return result
 
-#checks user story 08
+#checks to see if couple has children before they are married
 def checkUS08():
     result = ""
     # loops through famTable
@@ -71,16 +71,20 @@ def checkUS08():
                         if birthDate < marriageDate:
                             result += "ANOMALY: FAMILY: US08: " + row.get_string(fields=["ID"]) + ": Child (" + iD.replace("'","") + ") born " + rowI.get_string(fields = ["Birthday"]).strip() + " before marriage on " + row.get_string(fields = ["Married"]).strip() + "\n"
     return result
-
+# checks to see if child's birth occurs after death of at least one parent
 def checkUS09():
     result = ""
+    #loops through famTable
     for row in famTable:
+        #removes headers and borders
         row.border = False
         row.header = False
+        #gets husband and wife id
         husbID = row.get_string(fields = ["Husband ID"]).strip()
         wifeID = row.get_string(fields = ["Wife ID"]).strip()
         husbDeath = ""
         wifeDeath = ""
+        # checks and defines husband and wife death
         if 'DEAT' in indi[husbID]:
             husbDeath = datetime.datetime.strptime(formatDate(indi[husbID]["DEAT_DATE"]),'%Y-%m-%d').date()
         if 'DEAT' in indi[wifeID]:
@@ -90,7 +94,9 @@ def checkUS09():
             children = list(row.get_string(fields = ["Children"]).replace("[","").replace("]", "").strip().split(","))
             for i in children:
                 j = i.replace("'","")
+                # gets child's birth date
                 birth = datetime.datetime.strptime(formatDate(indi[j]["BIRT"]), '%Y-%m-%d').date()
+                # checks to see if birth occurs after death of parent
                 if wifeDeath != "" and husbDeath != "" and birth > wifeDeath and birth > husbDeath:
                     result += "ERROR: FAMILY: US09: " + row.get_string(fields = ["ID"]).strip() + ": Birthday of (" + j + ") on " + str(birth) + " after husband's (" + husbID + ") death on " + str(husbDeath) + " and wife's (" + wifeID + ") death on " + str(wifeDeath) + "\n"
                 elif wifeDeath != "" and birth > wifeDeath:
