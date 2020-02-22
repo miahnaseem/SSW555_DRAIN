@@ -23,6 +23,21 @@ def formatDate(date):
     newDate[1] = str(months[newDate[1]])
     return newDate[2] + "-" + newDate[1] + "-" + newDate[0]
 
+# Checks to make sure birth was before marriage
+def checkUS02():
+    result = ""
+    for row in indiTable:
+        # Get rid of the border and header of the pretty table
+        row.border = False
+        row.header = False
+        # Get each relevant data from the pretty table
+        currID = row.get_string(fields=["ID"]).strip()
+        birthDate = datetime.datetime.strptime(rowI.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
+        marriageDate = datetime.datetime.strptime(row.get_string(fields = ["Married"]).strip(), '%Y-%m-%d').date()
+        if birthDate < marriageDate:
+            
+
+
 # Checks if anyone was or is more than 150 years old
 def checkUS07():
     result = ""
