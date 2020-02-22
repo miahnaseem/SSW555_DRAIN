@@ -307,6 +307,7 @@ for key in fam:
 
 print(famTable)
 
+print(checkUS02(), end = "")
 print(checkUS07(), end = "")
 print(checkUS08(), end = "")
 print(checkUS09(), end = "")
