@@ -35,9 +35,9 @@ def checkUS02():
         husbID = row.get_string(fields = ["Husband ID"]).strip()
         wifeID = row.get_string(fields = ["Wife ID"]).strip()
         if 'BIRT' in indi[husbID]:
-            husbBirth = datetime.datetime.strptime(formatDate(indi[husbID]["BIRT_DATE"]),'%Y-%m-%d').date()
+            husbBirth = datetime.datetime.strptime(formatDate(indi[husbID]["BIRT"]),'%Y-%m-%d').date()
         if 'BIRT' in indi[wifeID]:
-            wifeBirth = datetime.datetime.strptime(formatDate(indi[wifeID]["BIRT_DATE"]),'%Y-%m-%d').date()      
+            wifeBirth = datetime.datetime.strptime(formatDate(indi[wifeID]["BIRT"]),'%Y-%m-%d').date()      
         if husbBirth > marriageDate:
             result += "ERROR: INDIVIDUAL: US02: " + husbID + ": Marriage is before Birth date " + husbBirth + "\n"   
         if wifeBirth > marriageDate:
