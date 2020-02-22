@@ -39,9 +39,9 @@ def checkUS02():
         if 'BIRT' in indi[wifeID]:
             wifeBirth = datetime.datetime.strptime(formatDate(indi[wifeID]["BIRT"]),'%Y-%m-%d').date()      
         if husbBirth > marriageDate:
-            result += "ERROR: INDIVIDUAL: US02: " + husbID + ": Marriage is before Birth date " + husbBirth + "\n"   
+            result += "ERROR: INDIVIDUAL: US02: " + husbID + ": Marriage is before Birth date " + str(husbBirth) + "\n"   
         if wifeBirth > marriageDate:
-            result += "ERROR: INDIVIDUAL: US02: " + wifeID + ": Marriage is before Birth date " + wifeBirth + "\n"  
+            result += "ERROR: INDIVIDUAL: US02: " + wifeID + ": Marriage is before Birth date " + str(wifeBirth) + "\n"  
     return result    
 
 # Checks if anyone was or is more than 150 years old
