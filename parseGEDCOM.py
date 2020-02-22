@@ -26,17 +26,23 @@ def formatDate(date):
 # Checks to make sure birth was before marriage
 def checkUS02():
     result = ""
-    for row in indiTable:
-        # Get rid of the border and header of the pretty table
+    for row in famTable:
+        # removes headers and borders
         row.border = False
         row.header = False
-        # Get each relevant data from the pretty table
-        currID = row.get_string(fields=["ID"]).strip()
-        birthDate = datetime.datetime.strptime(rowI.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
+        # converts marriageDate from string to date type
         marriageDate = datetime.datetime.strptime(row.get_string(fields = ["Married"]).strip(), '%Y-%m-%d').date()
-        if birthDate < marriageDate:
-            
-
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        if 'BIRT' in indi[husbID]:
+            husbBirth = datetime.datetime.strptime(formatDate(indi[husbID]["BIRT_DATE"]),'%Y-%m-%d').date()
+        if 'BIRT' in indi[wifeID]:
+            wifeBirth = datetime.datetime.strptime(formatDate(indi[wifeID]["BIRT_DATE"]),'%Y-%m-%d').date()      
+        if husbBirth > marriageDate:
+            result += "ERROR: INDIVIDUAL: US02: " + husbID + ": Marriage is before Birth date " + husbBirth + "\n"   
+        if wifeBirth > marriageDate:
+            result += "ERROR: INDIVIDUAL: US02: " + wifeID + ": Marriage is before Birth date " + wifeBirth + "\n"  
+    return result    
 
 # Checks if anyone was or is more than 150 years old
 def checkUS07():
