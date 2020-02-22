@@ -23,8 +23,9 @@ def formatDate(date):
     newDate[1] = str(months[newDate[1]])
     return newDate[2] + "-" + newDate[1] + "-" + newDate[0]
 
-# Checks user story 7
+# Checks if anyone was or is more than 150 years old
 def checkUS07():
+    result = ""
     for row in indiTable:
         # Get rid of the border and header of the pretty table
         row.border = False
@@ -37,12 +38,14 @@ def checkUS07():
         # Check age and death status
         if currAge >= 150:
             if currDeath == "NA":
-                print("ERROR: INDIVIDUAL: US07: " + currID + ": More than 150 years old - Birth date " + currBirth)
+                result += "ERROR: INDIVIDUAL: US07: " + currID + ": More than 150 years old - Birth date " + currBirth + "\n"
             else:
-                print("ERROR: INDIVIDUAL: US07: " + currID + ": More than 150 years old at death - Birth " + currBirth + ": Death " + currDeath)
+                result += "ERROR: INDIVIDUAL: US07: " + currID + ": More than 150 years old at death - Birth " + currBirth + ": Death " + currDeath + "\n"
+    return result
 
-#checks user story 08
+#checks to see if couple has children before they are married
 def checkUS08():
+    result = ""
     # loops through famTable
     for row in famTable:
         # removes headers and borders
@@ -61,13 +64,74 @@ def checkUS08():
                 rowI.header = False
                 # loops through children 
                 for i in children:
-                    id = "\'" + rowI.get_string(fields=["ID"]).strip() + "\'"
-                    if id == i:
+                    iD = "\'" + rowI.get_string(fields=["ID"]).strip() + "\'"
+                    if iD == i:
                         # compares marriage and birth date
                         birthDate = datetime.datetime.strptime(rowI.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
                         if birthDate < marriageDate:
-                            print("ANOMALY: FAMILY: US08: " + row.get_string(fields=["ID"]) + ": Child " + id + " born " + rowI.get_string(fields = ["Birthday"]).strip() + " before marriage on " + row.get_string(fields = ["Married"]).strip())
-    return
+                            result += "ANOMALY: FAMILY: US08: " + row.get_string(fields=["ID"]) + ": Child (" + iD.replace("'","") + ") born " + rowI.get_string(fields = ["Birthday"]).strip() + " before marriage on " + row.get_string(fields = ["Married"]).strip() + "\n"
+    return result
+# checks to see if child's birth occurs after death of at least one parent
+def checkUS09():
+    result = ""
+    #loops through famTable
+    for row in famTable:
+        #removes headers and borders
+        row.border = False
+        row.header = False
+        #gets husband and wife id
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        husbDeath = ""
+        wifeDeath = ""
+        # checks and defines husband and wife death
+        if 'DEAT' in indi[husbID]:
+            husbDeath = datetime.datetime.strptime(formatDate(indi[husbID]["DEAT_DATE"]),'%Y-%m-%d').date()
+        if 'DEAT' in indi[wifeID]:
+            wifeDeath = datetime.datetime.strptime(formatDate(indi[wifeID]["DEAT_DATE"]),'%Y-%m-%d').date()
+        if row.get_string(fields = ["Children"]).strip() != "NA":
+            # moves all children into a list
+            children = list(row.get_string(fields = ["Children"]).replace("[","").replace("]", "").strip().split(","))
+            for i in children:
+                j = i.replace("'","")
+                # gets child's birth date
+                birth = datetime.datetime.strptime(formatDate(indi[j]["BIRT"]), '%Y-%m-%d').date()
+                # checks to see if birth occurs after death of parent
+                if wifeDeath != "" and husbDeath != "" and birth > wifeDeath and birth > husbDeath:
+                    result += "ERROR: FAMILY: US09: " + row.get_string(fields = ["ID"]).strip() + ": Birthday of (" + j + ") on " + str(birth) + " after husband's (" + husbID + ") death on " + str(husbDeath) + " and wife's (" + wifeID + ") death on " + str(wifeDeath) + "\n"
+                elif wifeDeath != "" and birth > wifeDeath:
+                    result += "ERROR: FAMILY: US09: " + row.get_string(fields = ["ID"]).strip() + ": Birthday of (" + j + ") on " + str(birth) + " after wife's (" + wifeID + ") death on " + str(wifeDeath) + "\n"
+                elif husbDeath != "" and birth > husbDeath:
+                    result += "ERROR: FAMILY: US09: " + row.get_string(fields = ["ID"]).strip() + ": Birthday of (" + j + ") on " + str(birth) + " after husband's (" + husbID + ") death on " + str(husbDeath) + "\n"
+    return result
+
+# Checks if anyone was married before they were 14 years old 
+def checkUS10():
+    result = ""
+    for row in famTable:
+        # Get rid of the border and header of the pretty table
+        row.border = False
+        row.header = False
+
+        # Gets the relevant data from the pretty table
+        marriageDate = datetime.datetime.strptime(row.get_string(fields = ["Married"]).strip(), '%Y-%m-%d').date()
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        husbDate = datetime.datetime.strptime(formatDate(indi[husbID]["BIRT"]), '%Y-%m-%d').date()
+        wifeDate = datetime.datetime.strptime(formatDate(indi[wifeID]["BIRT"]), '%Y-%m-%d').date()
+
+        # Calculates the age when the husband and wife got married
+        husbAge = (marriageDate - husbDate).days // 365
+        wifeAge = (marriageDate - wifeDate).days // 365
+
+        # Checks if either the husband and wife married before they were 14 years old
+        if husbAge < 14 and wifeAge < 14:
+            result += "ANOMALY: FAMILY: US10: " + row.get_string(fields = ["ID"]).strip() + ": Husband (" + husbID + ") and Wife (" + wifeID + ") married before the age of 14\n"
+        elif husbAge < 14:
+            result += "ANOMALY: FAMILY: US10: " + row.get_string(fields = ["ID"]).strip() + ": Husband (" + husbID + ") married before the age of 14\n"
+        elif wifeAge < 14:
+            result +=  "ANOMALY: FAMILY: US10: " + row.get_string(fields = ["ID"]).strip() + ": Wife (" + wifeID + ") married before the age of 14\n"
+    return result
 
 # Flags help select which dict and where to input data
 current = ""
@@ -75,7 +139,7 @@ which_dict = ""
 dated_event = ""
 date = False
 ddate = False
-f = open(sys.argv[1], "r")
+f = open("testFile.ged", "r")
 while True:
     # Get one line of the GEDCOM file at a time
     inp = f.readline().strip()
@@ -205,7 +269,7 @@ for key in fam:
         divorce = "NA"
     else:
         div = True
-        divorce = fam[key]["DIV"]
+        divorce = datetime.datetime.strptime(formatDate(fam[key]["DIV"]), '%Y-%m-%d').date()
 
     # Gets the children of the family
     childs = []
@@ -222,7 +286,9 @@ for key in fam:
 
 print(famTable)
 
-checkUS07()
-checkUS08()
+print(checkUS07(), end = "")
+print(checkUS08(), end = "")
+print(checkUS09(), end = "")
+print(checkUS10(), end = "")
 
 f.close()
