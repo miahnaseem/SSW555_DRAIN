@@ -23,6 +23,41 @@ def formatDate(date):
     newDate[1] = str(months[newDate[1]])
     return newDate[2] + "-" + newDate[1] + "-" + newDate[0]
 
+# Checks to make sure all dates are before current date
+def checkUS01():
+    result = ""
+    for row in indiTable:
+        # removes headers and borders
+        row.border = False
+        row.header = False
+        currID = row.get_string(fields=["ID"]).strip()
+        currDate = datetime.datetime.today().date()
+        # convert all individual dates from string to date type
+        birthDate = datetime.datetime.strptime(row.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
+        # compares birth date with current date
+        if birthDate > currDate:
+            result += "ERROR: INDIVIDUAL: US01: " + currID + ": Birth date " +str(birthDate) + " is after current date " + str(currDate) + "\n"
+        # if the individual had died, compare the death date with current date
+        if row.get_string(fields = ["Death"]).strip() != "NA":
+            deathDate = datetime.datetime.strptime(row.get_string(fields = ["Death"]).strip(), '%Y-%m-%d').date()
+            if deathDate > currDate:
+                 result += "ERROR: INDIVIDUAL: US01: " + currID + ": Death date " +str(deathDate) + " is after current date " + str(currDate) + "\n"
+    for row in famTable:
+        # removes headers and borders
+        row.border = False
+        row.header = False
+        # convert all family dates from string to date type
+        marriageDate = datetime.datetime.strptime(row.get_string(fields = ["Married"]).strip(), '%Y-%m-%d').date()
+        # compares marriage date with current date
+        if marriageDate > currDate:
+            result += "ERROR: INDIVIDUAL: US01: " + currID + ": Marriage date " +str(marriageDate) + " is after current date " + str(currDate) + "\n"
+        # if the family had divorced, compare the divorce date with current date
+        if row.get_string(fields = ["Divorced"]).strip() != "NA":
+            divorceDate = datetime.datetime.strptime(row.get_string(fields = ["Divorced"]).strip(), '%Y-%m-%d').date()
+            if divorceDate > currDate:
+                result += "ERROR: INDIVIDUAL: US01: " + currID + ": Divorce date " +str(divorceDate) + " is after current date " + str(currDate) + "\n"
+    return result
+
 # Checks to make sure birth was before marriage
 def checkUS02():
     result = ""
@@ -326,6 +361,7 @@ for key in fam:
 
 print(famTable)
 
+print(checkUS01(), end = "")
 print(checkUS02(), end = "")
 print(checkUS03(), end = "")
 print(checkUS07(), end = "")
