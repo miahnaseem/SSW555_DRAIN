@@ -23,6 +23,46 @@ def formatDate(date):
     newDate[1] = str(months[newDate[1]])
     return newDate[2] + "-" + newDate[1] + "-" + newDate[0]
 
+# Checks to make sure birth was before marriage
+def checkUS02():
+    result = ""
+    for row in famTable:
+        # removes headers and borders
+        row.border = False
+        row.header = False
+        # converts marriageDate from string to date type
+        marriageDate = datetime.datetime.strptime(row.get_string(fields = ["Married"]).strip(), '%Y-%m-%d').date()
+        # gets husband and wife IDs
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        # gets birth date and converts from string to date type
+        if 'BIRT' in indi[husbID]:
+            husbBirth = datetime.datetime.strptime(formatDate(indi[husbID]["BIRT"]),'%Y-%m-%d').date()
+        if 'BIRT' in indi[wifeID]:
+            wifeBirth = datetime.datetime.strptime(formatDate(indi[wifeID]["BIRT"]),'%Y-%m-%d').date()      
+        #compares birth date with marriage date
+        if husbBirth > marriageDate:
+            result += "ERROR: INDIVIDUAL: US02: " + husbID + ": Marriage date " +str(marriageDate) + " is before Birth date " + str(husbBirth) + "\n"   
+        if wifeBirth > marriageDate:
+            result += "ERROR: INDIVIDUAL: US02: " + wifeID + ": Marriage date " +str(marriageDate)+ " is before Birth date " + str(wifeBirth) + "\n"  
+    return result 
+
+# Checks to make sure birth occurs before death
+def checkUS03():
+    result = ""
+    for row in indiTable:
+        # removes headers and borders
+        row.border = False
+        row.header = False
+        # converts birth date from string to date type
+        birthDate = datetime.datetime.strptime(row.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
+        currID = row.get_string(fields=["ID"]).strip() 
+        if 'DEAT' in indi[currID]:
+            deathDate = datetime.datetime.strptime(row.get_string(fields = ["Death"]).strip(), '%Y-%m-%d').date()
+            if birthDate > deathDate:
+                result += "ERROR: INDIVIDUAL: US03: " + currID + ": Death date " +str(deathDate) + " is before Birth date " + str(birthDate) + "\n"   
+    return result   
+
 # Checks if anyone was or is more than 150 years old
 def checkUS07():
     result = ""
@@ -286,6 +326,8 @@ for key in fam:
 
 print(famTable)
 
+print(checkUS02(), end = "")
+print(checkUS03(), end = "")
 print(checkUS07(), end = "")
 print(checkUS08(), end = "")
 print(checkUS09(), end = "")
