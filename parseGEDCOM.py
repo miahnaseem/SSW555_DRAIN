@@ -98,6 +98,28 @@ def checkUS03():
                 result += "ERROR: INDIVIDUAL: US03: " + currID + ": Death date " +str(deathDate) + " is before Birth date " + str(birthDate) + "\n"   
     return result   
 
+# Checks to make sure all divorces happened before deaths
+def checkUS06():
+    result = ""
+    for row in famTable:
+        # removes headers and borders
+        row.border = False
+        row.header = False
+        # if family has been divorced, converts divorce date from string to date type
+        if row.get_string(fields = ["Divorced"]).strip() != "NA":
+            divorceDate = datetime.datetime.strptime(row.get_string(fields = ["Divorced"]).strip(), '%Y-%m-%d').date()
+            husbID = row.get_string(fields = ["Husband ID"]).strip()
+            wifeID = row.get_string(fields = ["Wife ID"]).strip()
+            if 'DEAT' in indi[husbID]:
+                husbDeath = datetime.datetime.strptime(formatDate(indi[husbID]["DEAT_DATE"]),'%Y-%m-%d').date()
+                if divorceDate > husbDeath:
+                    result += "ERROR: INDIVIDUAL: US06: " + husbID + ": Death date " +str(husbDeath) + " is before divorce date " + str(divorceDate) + "\n"
+            if 'DEAT' in indi[wifeID]:
+                wifeDeath = datetime.datetime.strptime(formatDate(indi[wifeID]["DEAT_DATE"]),'%Y-%m-%d').date()
+                if divorceDate > wifeDeath:
+                    result += "ERROR: INDIVIDUAL: US06: " + husbID + ": Death date " +str(wifeDeath) + " is before divorce date " + str(divorceDate) + "\n"  
+    return result 
+
 # Checks if anyone was or is more than 150 years old
 def checkUS07():
     result = ""
@@ -364,6 +386,7 @@ print(famTable)
 print(checkUS01(), end = "")
 print(checkUS02(), end = "")
 print(checkUS03(), end = "")
+print(checkUS06(), end = "")
 print(checkUS07(), end = "")
 print(checkUS08(), end = "")
 print(checkUS09(), end = "")
