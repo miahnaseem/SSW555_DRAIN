@@ -108,12 +108,15 @@ def checkUS06():
         # if family has been divorced, converts divorce date from string to date type
         if row.get_string(fields = ["Divorced"]).strip() != "NA":
             divorceDate = datetime.datetime.strptime(row.get_string(fields = ["Divorced"]).strip(), '%Y-%m-%d').date()
+            # Get divorced hubsand and wife ID
             husbID = row.get_string(fields = ["Husband ID"]).strip()
             wifeID = row.get_string(fields = ["Wife ID"]).strip()
+            # if indi table has death record for husband, check if husband's death date is after divorce date
             if 'DEAT' in indi[husbID]:
                 husbDeath = datetime.datetime.strptime(formatDate(indi[husbID]["DEAT_DATE"]),'%Y-%m-%d').date()
                 if divorceDate > husbDeath:
                     result += "ERROR: INDIVIDUAL: US06: " + husbID + ": Death date " +str(husbDeath) + " is before divorce date " + str(divorceDate) + "\n"
+            # if indi table has death record for wife, check if wife's death date is after divorce date
             if 'DEAT' in indi[wifeID]:
                 wifeDeath = datetime.datetime.strptime(formatDate(indi[wifeID]["DEAT_DATE"]),'%Y-%m-%d').date()
                 if divorceDate > wifeDeath:
