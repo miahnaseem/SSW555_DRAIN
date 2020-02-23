@@ -111,7 +111,7 @@ def checkUS04():
             divorceDate = datetime.datetime.strptime(row.get_string(fields = ["Divorced"]).strip(), '%Y-%m-%d').date()
             # compares marriage and divorce date
             if divorceDate < marriageDate:
-                result += "ERROR: FAMILY: US04: " + row.get_string(fields=["ID"]).strip() + ": Divorce date "+ str(divorceDate) + " occurs before marriage date " + str(marriageDate) + "\n"
+                result += "ERROR: FAMILY: US04: " + row.get_string(fields=["ID"]).strip() + ": Divorce date "+ str(divorceDate) + " is before marriage date " + str(marriageDate) + "\n"
     return result
 
 
