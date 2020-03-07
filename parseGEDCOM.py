@@ -98,6 +98,47 @@ def checkUS03():
                 result += "ERROR: INDIVIDUAL: US03: " + currID + ": Death date " +str(deathDate) + " is before Birth date " + str(birthDate) + "\n"   
     return result   
 
+# Checks to make sure marriage occurs before divorce
+def checkUS04():
+    result = ""
+    for row in famTable:
+        # strips borders and headers
+        row.border = False
+        row.header = False
+        # checks if divorce occured
+        if row.get_string(fields = ["Divorced"]).strip() != "NA" and row.get_string(fields = ["Married"]).strip() != "NA":
+            marriageDate = datetime.datetime.strptime(row.get_string(fields = ["Married"]).strip(), '%Y-%m-%d').date()
+            divorceDate = datetime.datetime.strptime(row.get_string(fields = ["Divorced"]).strip(), '%Y-%m-%d').date()
+            # compares marriage and divorce date
+            if divorceDate < marriageDate:
+                result += "ERROR: FAMILY: US04: " + row.get_string(fields=["ID"]).strip() + ": Divorce date "+ str(divorceDate) + " is before marriage date " + str(marriageDate) + "\n"
+    return result
+
+
+# Checks to make sure marriages occur before deaths
+def checkUS05():
+    result = ""
+    for row in famTable:
+        # strips borders and headers
+        row.border = False
+        row.header = False
+        if row.get_string(fields = ["Married"]).strip() != "NA":
+            marriageDate = datetime.datetime.strptime(row.get_string(fields = ["Married"]).strip(), '%Y-%m-%d').date()
+            # stores married couple's IDs
+            husbID = row.get_string(fields = ["Husband ID"]).strip()
+            wifeID = row.get_string(fields = ["Wife ID"]).strip()
+            # if table has a record of the husband's death, compares the death date to the marriage date
+            if 'DEAT' in indi[husbID]:
+                husbDeath = datetime.datetime.strptime(formatDate(indi[husbID]["DEAT_DATE"]),'%Y-%m-%d').date()
+                if marriageDate > husbDeath:
+                    result += "ERROR: INDIVIDUAL: US05: " + husbID + ": Death date " +str(husbDeath) + " is before marriage date " + str(marriageDate) + "\n"
+            # if table has a record of the wife's death, compares the death date to the marriage date
+            if 'DEAT' in indi[wifeID]:
+                wifeDeath = datetime.datetime.strptime(formatDate(indi[wifeID]["DEAT_DATE"]),'%Y-%m-%d').date()
+                if marriageDate > wifeDeath:
+                    result += "ERROR: INDIVIDUAL: US05: " + husbID + ": Death date " +str(wifeDeath) + " is before marriage date " + str(marriageDate) + "\n"  
+    return result
+
 # Checks to make sure all divorces happened before deaths
 def checkUS06():
     result = ""
@@ -389,6 +430,8 @@ print(famTable)
 print(checkUS01(), end = "")
 print(checkUS02(), end = "")
 print(checkUS03(), end = "")
+print(checkUS04(), end = "")
+print(checkUS05(), end = "")
 print(checkUS06(), end = "")
 print(checkUS07(), end = "")
 print(checkUS08(), end = "")
