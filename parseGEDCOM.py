@@ -298,7 +298,17 @@ def checkUS17():
         i += 1
     return result + "\n"
         
-
+def checkUS18():
+    result = ""
+    i = 0
+    for row in famTable[:-1]:
+        row.header = False
+        row.border = False
+        i = 0
+        children = list(row.get_string(fields = ["Children"]).strip())
+        return children
+        
+        
 
 
 # Flags help select which dict and where to input data
@@ -391,7 +401,6 @@ indiTable.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "De
 currentDate = datetime.date.today()
 # Iterates through indi dict printing unique identifier and NAME in order
 for key in indi:
-    
     #formats birth date
     birth = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
     #sets the values for alive and death columns
@@ -454,16 +463,16 @@ for key in fam:
 
 print(famTable)
 
-print(checkUS01(), end = "")
-print(checkUS02(), end = "")
-print(checkUS03(), end = "")
-print(checkUS04(), end = "")
-print(checkUS05(), end = "")
-print(checkUS06(), end = "")
-print(checkUS07(), end = "")
-print(checkUS08(), end = "")
-print(checkUS09(), end = "")
-print(checkUS10(), end = "")
-print(checkUS17(), end = "")
-
+# print(checkUS01(), end = "")
+# print(checkUS02(), end = "")
+# print(checkUS03(), end = "")
+# print(checkUS04(), end = "")
+# print(checkUS05(), end = "")
+# print(checkUS06(), end = "")
+# print(checkUS07(), end = "")
+# print(checkUS08(), end = "")
+# print(checkUS09(), end = "")
+# print(checkUS10(), end = "")
+# print(checkUS17(), end = "")
+print(checkUS18(), end = "")
 f.close()
