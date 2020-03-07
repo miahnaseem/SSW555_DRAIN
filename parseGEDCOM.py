@@ -17,6 +17,8 @@ indi = {}
 
 fam = {}
 
+
+
 # formats the date into YYYY-MM-DD
 def formatDate(date):
     newDate = date.split()
@@ -274,6 +276,31 @@ def checkUS10():
             result +=  "ANOMALY: FAMILY: US10: " + row.get_string(fields = ["ID"]).strip() + ": Wife (" + wifeID + ") married before the age of 14\n"
     return result
 
+def checkUS17():
+    result = ""
+    i = 0
+    for row in famTable[:-1]:
+        row.header = False
+        row.border = False
+        i = 0
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        children = row.get_string(fields = ["Children"]).replace("['", "").replace("']", "").strip()
+        for rw in famTable[i+1:]:
+            rw.header = False
+            rw.border = False
+            nexthusbID = rw.get_string(fields = ["Husband ID"]).strip()
+            nextwifeID = rw.get_string(fields = ["Wife ID"]).strip()
+            if husbID == nexthusbID and children == nextwifeID:
+                result += "ANOMALY: FAMILY US17: " + rw.get_string(fields = ["ID"]).strip() + ": Husband (" + husbID + ") marries Child (" + children + ")"
+            if wifeID == nextwifeID and children == nexthusbID:
+                result += "ANOMALY: FAMILY: US17: " + rw.get_string(fields = ["ID"]).strip() + ": Wife (" + wifeID + ") marries Child (" + children + ")"
+        i += 1
+    return result + "\n"
+        
+
+
+
 # Flags help select which dict and where to input data
 current = ""
 which_dict = ""
@@ -437,5 +464,6 @@ print(checkUS07(), end = "")
 print(checkUS08(), end = "")
 print(checkUS09(), end = "")
 print(checkUS10(), end = "")
+print(checkUS17(), end = "")
 
 f.close()
