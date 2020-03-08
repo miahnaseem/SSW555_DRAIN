@@ -373,6 +373,42 @@ def checkUS11():
                 k += 1
     return result
 
+# Checks to make sure no more than 5 children are born at a time
+def checkUS14():
+    result = ""
+    famTable.header = False
+    famTable.border = False
+    for row in famTable:
+        # Get the list of children
+        children = children = row.get_string(fields = ["Children"]).replace(" ", "").replace("'", "").replace("[", "").replace("]", "").strip().split(",")
+        # print(children)
+        birthdays = {}
+        for child in children:
+            if child != "NA":
+                bday = datetime.datetime.strptime(formatDate(indi[child]["BIRT"]), '%Y-%m-%d').date()
+                if str(bday) in birthdays:
+                    birthdays[str(bday)]+=1
+                else:
+                    birthdays[str(bday)] = 1
+
+        for day in birthdays:
+            if birthdays[day]>=5:
+                result += "ANOMALY: FAMILY: US14: Family ("+row.get_string(fields=["ID"])+") has 5 or more children born on "+day +"\n"
+    return result
+
+# Checks to make sure no more than 15 children are in a family
+def checkUS15():
+    result = ""
+    result = ""
+    famTable.header = False
+    famTable.border = False
+    for row in famTable:
+        # Get the list of children
+        children = row.get_string(fields = ["Children"]).replace(" ", "").replace("'", "").replace("[", "").replace("]", "").strip().split(",")
+        if len(children)>=15:
+            result += "ANOMALY: FAMILY: US15: Family (" + row.get_string(fields=["ID"]) + ") has 15 or more children\n"
+    return result
+
 # Checks that all the males have the same last name in their family
 def checkUS16():
     result = ""
@@ -716,6 +752,8 @@ print(checkUS08(), end = "")
 print(checkUS09(), end = "")
 print(checkUS10(), end = "")
 print(checkUS11(), end = "")
+print(checkUS14(), end = "")
+print(checkUS15(), end = "")
 print(checkUS16(), end = "")
 print(checkUS17(), end = "")
 print(checkUS18(), end = "")
