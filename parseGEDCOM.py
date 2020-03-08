@@ -372,6 +372,60 @@ def checkUS11():
                 j += 1
                 k += 1
     return result
+#Checks that parents are not too old
+def checkUS12():
+    result = ""
+    # loops through famTable
+    for row in famTable:
+        # removes headers and borders
+        row.border = False
+        row.header = False
+        # checks if they have children
+        if row.get_string(fields = ["Children"]).strip() != "NA":
+            # moves all children into a list
+            children = list(row.get_string(fields = ["Children"]).replace("[","").replace("]", "").replace(" ","").replace("'", "").strip().split(","))
+            # loops through indiTable
+            for rowI in indiTable:
+                # removes headers and borders 
+                rowI.border = False
+                rowI.header = False
+                currAge = int(rowI.get_string(fields=["Age"]).strip(), 10)
+                # loops through children 
+                for i in children:
+                    iD = rowI.get_string(fields=["ID"]).strip()
+                    if iD == i:
+                        childAge = int(rowI.get_string(fields=["Age"]).strip(), 10)
+                        if childAge - currAge < 60:
+                            result += "ANOMALY: FAMILY: US12: " + row.get_string(fields=["ID"])+ "Parent is too old to hav (" + iD + ")\n"
+    return result
+
+# Checks the siblings spacing
+def checkUS13():
+    result = ""
+    i = 0
+    for row in indiTable[:-1]:
+        row.header = False
+        row.border = False
+        # sees what family the current individual is a child in
+        childin = row.get_string(fields = ["Child"]).strip()
+        # gets id of current individual
+        childID = row.get_string(fields = ["ID"]).strip()
+        # get birthday of current
+        birthDate = datetime.datetime.strptime(row.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
+        # loops through rest of the table
+        for rw in indiTable[i+1:]:
+            rw.header = False
+            rw.border = False
+            # sees what family the next individual is a child in
+            nextchildin = rw.get_string(fields = ["Child"]).strip()
+            # sees what family the next individual is a spouse in 
+            nextDate = datetime.datetime.strptime(rw.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
+            nextID = rw.get_string(fields = ["ID"]).strip()
+            # sees if the the two individuals are children and spouses in the same family
+            if childin != "NA" and childin == nextchildin and birthDate > nextDate:
+                result += "ANOMALY: FAMILY: US13: " + childin+ "Individual (" + childID + ") spacing is too large from sibling (" + nextID + ")\n"
+        i += 1
+    return result
 
 # Checks that all the males have the same last name in their family
 def checkUS16():
@@ -716,6 +770,8 @@ print(checkUS08(), end = "")
 print(checkUS09(), end = "")
 print(checkUS10(), end = "")
 print(checkUS11(), end = "")
+print(checkUS12(), end = "")
+print(checkUS13(), end = "")
 print(checkUS16(), end = "")
 print(checkUS17(), end = "")
 print(checkUS18(), end = "")
