@@ -199,7 +199,7 @@ def checkUS08():
         # checks if they have children
         if row.get_string(fields = ["Children"]).strip() != "NA":
             # moves all children into a list
-            children = list(row.get_string(fields = ["Children"]).replace("['","").replace("']", "").replace(" ","").strip().split(","))
+            children = list(row.get_string(fields = ["Children"]).replace("[","").replace("]", "").replace(" ","").replace("'", "").strip().split(","))
             # loops through indiTable
             for rowI in indiTable:
                 # removes headers and borders 
@@ -207,7 +207,7 @@ def checkUS08():
                 rowI.header = False
                 # loops through children 
                 for i in children:
-                    iD = "\'" + rowI.get_string(fields=["ID"]).strip() + "\'"
+                    iD = rowI.get_string(fields=["ID"]).strip()
                     if iD == i:
                         # compares marriage and birth date
                         birthDate = datetime.datetime.strptime(rowI.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
@@ -392,6 +392,8 @@ def checkUS16():
                     if indi[x]["NAME"][indi[x]["NAME"].index("/") + 1:-1] != lastName:
                         result += "ANOMALY: INDIVIDUAL: US16: Individual (" + str(x) + ") does not have a matching family last name\n"
     return result
+
+# Checks to see if a parent marries a child
 def checkUS17():
     result = ""
     i = 0
@@ -421,7 +423,8 @@ def checkUS17():
                     result += "ANOMALY: FAMILY: US17: " + rw.get_string(fields = ["ID"]).strip() + ": Wife (" + wifeID + ") marries Child (" + iD + ")\n"
         i += 1
     return result
-        
+
+# Checks to see if siblings marry each other
 def checkUS18():
     result = ""
     i = 0
@@ -448,9 +451,6 @@ def checkUS18():
                 result += "ANOMALY: FAMILY: US18: " + nextspousein + ": Individual (" + iD + ") is married to sibling (" + nextiD + ")\n"
         i += 1
     return result
-        
-        
-
 
 # Flags help select which dict and where to input data
 current = ""
@@ -621,5 +621,7 @@ print(checkUS09(), end = "")
 print(checkUS10(), end = "")
 print(checkUS11(), end = "")
 print(checkUS16(), end = "")
+print(checkUS17(), end = "")
+print(checkUS18(), end = "")
 
 f.close()
