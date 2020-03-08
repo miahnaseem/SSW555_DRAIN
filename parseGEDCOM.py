@@ -397,6 +397,7 @@ which_dict = ""
 dated_event = ""
 date = False
 ddate = False
+children = []
 f = open("testFile.ged", "r")
 while True:
     # Get one line of the GEDCOM file at a time
@@ -436,6 +437,7 @@ while True:
             current = line[1]
             which_dict = "FAM"
             fam[current] = {}
+            children.clear()
     # Gets rid of the tag from the array
     if arg in tags.keys():
         line.remove(arg)
@@ -471,9 +473,12 @@ while True:
             date = True
             dated_event = arg
         else:
-            if arg == "HUSB" or arg == "WIFE" or arg == "CHIL":
+            if arg == "HUSB" or arg == "WIFE":
                 fam[current][arg] = ' '.join(line)
-
+            if arg == "CHIL":
+                children.append(' '.join(line))
+                curr_child = children[:]
+                fam[current][arg] = curr_child
 
 # gets current date
 indiTable = PrettyTable()
@@ -533,12 +538,12 @@ for key in fam:
     childs = []
     for elem in fam[key]:
         if elem == "CHIL":
-            childs.append(fam[key][elem])
+            childs = fam[key][elem]
     if not childs:
         children = "NA"
     else:
         children = childs
-    
+
     # Makes the table
     famTable.add_row([key, marry, divorce, fam[key]["HUSB"], indi[fam[key]["HUSB"]]["NAME"], fam[key]["WIFE"], indi[fam[key]["WIFE"]]["NAME"], children])
 
