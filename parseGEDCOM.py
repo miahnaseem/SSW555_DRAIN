@@ -274,6 +274,123 @@ def checkUS10():
             result +=  "ANOMALY: FAMILY: US10: " + row.get_string(fields = ["ID"]).strip() + ": Wife (" + wifeID + ") married before the age of 14\n"
     return result
 
+# Checks if there is any bigamy
+def checkUS11():
+    result = ""
+    famTable.border = False
+    famTable.header = False
+
+    # Get a list of the husband and wife ids
+    hCol = famTable.get_string(fields=["Husband ID"])
+    wCol = famTable.get_string(fields=["Wife ID"])
+    hCol = list(hCol.replace(" ", "").strip().split("\n"))
+    wCol = list(wCol.replace(" ", "").strip().split("\n"))
+    countH = []
+    countW = []
+
+    # Makes a list of people with 2 or more marriages
+    for i in hCol:
+        if i not in countH and hCol.count(i) > 1:
+            countH.append(i)
+    for i in wCol:
+        if i not in countW and wCol.count(i) > 1:
+            countW.append(i)
+
+    # Find husbands that are committing bigamy
+    for i in countH:
+        mardates = {}
+        divdates = {}
+        deathdates = {}
+        # Get the marriage, divorce, and death dates of the wives married to the husband committing bigamy
+        for row in famTable:
+            husbID = row.get_string(fields = ["Husband ID"]).replace(" ", "").strip()
+            wifeID = row.get_string(fields = ["Wife ID"]).replace(" ", "").strip()
+            if husbID == i:
+                mardates[wifeID] = datetime.datetime.strptime(row.get_string(fields = ["Married"]).replace(" ", "").strip(), '%Y-%m-%d').date()
+                if row.get_string(fields = ["Divorced"]).replace(" ", "").strip() != "NA":
+                    divdates[wifeID] = datetime.datetime.strptime(row.get_string(fields = ["Divorced"]).replace(" ", "").strip(), '%Y-%m-%d').date()
+                if "DEAT" in indi[husbID]:
+                    deathdates[wifeID] = datetime.datetime.strptime(formatDate(indi[wifeID]["DEAT_DATE"]), '%Y-%m-%d').date()
+        # Creates sorted lists of marriage dates and death/divorce dates in order to compare the dates
+        marsort = list(mardates.values())
+        marsort.sort()
+        divsort = list(divdates.values())
+        deathsort = list(deathdates.values())
+        divdeath = divsort + deathsort
+        divdeath.sort()
+        # If there are no deaths or divorces, that means that the husband is married to multiple wives at the same time
+        if len(divdeath) == 0:
+            result += "ANOMALY: INDIVIDUAL: US11: Individual (" + i + ") married to multiple people at the same time\n"
+        # If there are deaths and/or divorces, that means that the husband was widowed or divorced and then remarried
+        # So you need to check whether there were two or more marriages that occurred at the same time frame
+        else:
+            j = 0
+            k = 1
+            while j < len(divdeath) and k < len(marsort):
+                if divdeath[j] > marsort[k]:
+                    result += "ANOMALY: INDIVIDUAL: US11: Individual (" + i + ") married to multiple people at the same time\n"
+                    break
+                j += 1
+                k += 1
+
+    # Find wives that are committting bigamy
+    for i in countW:
+        mardates = {}
+        divdates = {}
+        deathdates = {}
+        # Get the marriage, divorce, and death dates of the husbands married to the wife committing bigamy
+        for row in famTable:
+            husbID = row.get_string(fields = ["Husband ID"]).replace(" ", "").strip()
+            wifeID = row.get_string(fields = ["Wife ID"]).replace(" ", "").strip()
+            if wifeID == i:
+                mardates[husbID] = datetime.datetime.strptime(row.get_string(fields = ["Married"]).replace(" ", "").strip(), '%Y-%m-%d').date()
+                if row.get_string(fields = ["Divorced"]).replace(" ", "").strip() != "NA":
+                    divdates[husbID] = datetime.datetime.strptime(row.get_string(fields = ["Divorced"]).replace(" ", "").strip(), '%Y-%m-%d').date()
+                if "DEAT" in indi[husbID]:
+                    deathdates[husbID] = datetime.datetime.strptime(formatDate(indi[husbID]["DEAT_DATE"]), '%Y-%m-%d').date()
+        # Creates sorted lists of marriage dates and death/divorce dates in order to compare the dates
+        marsort = list(mardates.values())
+        marsort.sort()
+        divsort = list(divdates.values())
+        deathsort = list(deathdates.values())
+        divdeath = divsort + deathsort
+        divdeath.sort()
+        # If there are no deaths or divorces, that means that the wife is married to multiple husbands at the same time
+        if len(divdeath) == 0:
+            result += "ANOMALY: INDIVIDUAL: US11: Individual (" + i + ") married to multiple people at the same time\n"
+        # If there are deaths and/or divorces, that means that the husband was widowed or divorced and then remarried
+        # So you need to check whether there were two or more marriages that occurred at the same time frame
+        else:
+            j = 0
+            k = 1
+            while j < len(divdeath) and k < len(marsort):
+                if divdeath[j] > marsort[k]:
+                    result += "ANOMALY: INDIVIDUAL: US11: Individual (" + i + ") married to multiple people at the same time\n"
+                    break
+                j += 1
+                k += 1
+    return result
+
+# Checks that all the males have the same last name in their family
+def checkUS16():
+    result = ""
+    famTable.header = False
+    famTable.border = False
+    for row in famTable:
+        # Get the husband's name to extract the last name
+        husbName = row.get_string(fields = ["Husband Name"]).replace(" ", "").strip()
+        # Get the list of children
+        children = row.get_string(fields = ["Children"]).replace(" ", "").replace("'", "").replace("[", "").replace("]", "").strip().split(",")
+        # Get the family last name
+        lastName = husbName[husbName.index("/") + 1:-1]
+        # Loops through each male child and check the last name
+        for x in children:
+            if x != "NA":
+                if indi[x]["SEX"] == "M":
+                    if indi[x]["NAME"][indi[x]["NAME"].index("/") + 1:-1] != lastName:
+                        result += "ANOMALY: INDIVIDUAL: US16: Individual (" + str(x) + ") does not have a matching family last name\n"
+    return result
+
 # Flags help select which dict and where to input data
 current = ""
 which_dict = ""
@@ -437,5 +554,7 @@ print(checkUS07(), end = "")
 print(checkUS08(), end = "")
 print(checkUS09(), end = "")
 print(checkUS10(), end = "")
+print(checkUS11(), end = "")
+print(checkUS16(), end = "")
 
 f.close()
