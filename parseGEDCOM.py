@@ -17,6 +17,8 @@ indi = {}
 
 fam = {}
 
+
+
 # formats the date into YYYY-MM-DD
 def formatDate(date):
     newDate = date.split()
@@ -197,7 +199,7 @@ def checkUS08():
         # checks if they have children
         if row.get_string(fields = ["Children"]).strip() != "NA":
             # moves all children into a list
-            children = list(row.get_string(fields = ["Children"]).replace("[","").replace("]", "").strip().split(","))
+            children = list(row.get_string(fields = ["Children"]).replace("['","").replace("']", "").replace(" ","").strip().split(","))
             # loops through indiTable
             for rowI in indiTable:
                 # removes headers and borders 
@@ -232,7 +234,7 @@ def checkUS09():
             wifeDeath = datetime.datetime.strptime(formatDate(indi[wifeID]["DEAT_DATE"]),'%Y-%m-%d').date()
         if row.get_string(fields = ["Children"]).strip() != "NA":
             # moves all children into a list
-            children = list(row.get_string(fields = ["Children"]).replace("[","").replace("]", "").strip().split(","))
+            children = list(row.get_string(fields = ["Children"]).replace("['","").replace("']", "").replace(" ","").strip().split(","))
             for i in children:
                 j = i.replace("'","")
                 # gets child's birth date
@@ -390,6 +392,65 @@ def checkUS16():
                     if indi[x]["NAME"][indi[x]["NAME"].index("/") + 1:-1] != lastName:
                         result += "ANOMALY: INDIVIDUAL: US16: Individual (" + str(x) + ") does not have a matching family last name\n"
     return result
+def checkUS17():
+    result = ""
+    i = 0
+    for row in famTable[:-1]:
+        row.header = False
+        row.border = False
+        # gets husbID of current row
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        # gets wifeID of current row
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        # gets children from current row
+        children = list(row.get_string(fields = ["Children"]).replace("['","").replace("']", "").replace(" ","").strip().split(","))
+        # loops through rest of the table excluding current and previously accessed rows
+        for rw in famTable[i+1:]:
+            rw.header = False
+            rw.border = False
+            #gets husbID of next row
+            nexthusbID = rw.get_string(fields = ["Husband ID"]).strip()
+            #gets wifeID of next row
+            nextwifeID = rw.get_string(fields = ["Wife ID"]).strip()
+            # loops through children
+            for iD in children:
+                # checks if parent and child are married
+                if husbID == nexthusbID and iD == nextwifeID:
+                    result += "ANOMALY: FAMILY: US17: " + rw.get_string(fields = ["ID"]).strip() + ": Husband (" + husbID + ") marries Child (" + iD + ")\n"
+                if wifeID == nextwifeID and iD == nexthusbID:
+                    result += "ANOMALY: FAMILY: US17: " + rw.get_string(fields = ["ID"]).strip() + ": Wife (" + wifeID + ") marries Child (" + iD + ")\n"
+        i += 1
+    return result
+        
+def checkUS18():
+    result = ""
+    i = 0
+    for row in indiTable[:-1]:
+        row.header = False
+        row.border = False
+        # sees what family the current individual is a child in
+        childin = row.get_string(fields = ["Child"]).strip()
+        # sees what family the current individual is a spouse in 
+        spousein = row.get_string(fields = ["Spouse"]).strip()
+        # gets id of current individual
+        iD = row.get_string(fields = ["ID"]).strip()
+        # loops through rest of the table
+        for rw in indiTable[i+1:]:
+            rw.header = False
+            rw.border = False
+            # sees what family the next individual is a child in
+            nextchildin = rw.get_string(fields = ["Child"]).strip()
+            # sees what family the next individual is a spouse in 
+            nextspousein = rw.get_string(fields = ["Spouse"]).strip()
+            nextiD = rw.get_string(fields = ["ID"]).strip()
+            # sees if the the two individuals are children and spouses in the same family
+            if childin == nextchildin and spousein == nextspousein and spousein != "NA" and childin != "NA":
+                result += "ANOMALY: FAMILY: US18: " + nextspousein + ": Individual (" + iD + ") is married to sibling (" + nextiD + ")\n"
+        i += 1
+    return result
+        
+        
+
 
 # Flags help select which dict and where to input data
 current = ""
@@ -486,7 +547,6 @@ indiTable.field_names = ["ID", "Name", "Gender", "Birthday", "Age", "Alive", "De
 currentDate = datetime.date.today()
 # Iterates through indi dict printing unique identifier and NAME in order
 for key in indi:
-    
     #formats birth date
     birth = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
     #sets the values for alive and death columns
