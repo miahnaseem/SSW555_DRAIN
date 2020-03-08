@@ -452,6 +452,102 @@ def checkUS18():
         i += 1
     return result
 
+# Checks for marriages between first cousins
+def checkUS19():
+    result = ""
+    for row in famTable:
+        row.header = False
+        row.border = False
+        famID = row.get_string(fields = ["ID"]).strip()
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        # Check only happens if both husb and wife are children of families in GED file (need siblings for first cousins)
+        if "FAMC" in indi[husbID]:
+            husbFam = indi[husbID]["FAMC"]
+            if "FAMC" in indi[wifeID]:
+                wifeFam = indi[wifeID]["FAMC"]
+                # Get id of parents of each spouse
+                husbFamHusb = fam[husbFam]["HUSB"]
+                husbFamWife = fam[husbFam]["WIFE"]
+                wifeFamHusb = fam[wifeFam]["HUSB"]
+                wifeFamWife = fam[wifeFam]["WIFE"]
+                # Compare dict "FAMC" entry for each id to see if parents of each spouse are siblings (i.e. spouses are first cousins)
+                # husband dad and wife dad siblings
+                try:
+                    if indi[husbFamHusb]["FAMC"] == indi[wifeFamHusb]["FAMC"]:
+                        result += "ANOMALY: FAMILY: US19: " + famID + ": Individual (" + husbID + ") is married to first cousin (" + wifeID + ")\n"
+                except:
+                    pass
+                # husband mom and wife mom siblings
+                try:
+                    if indi[husbFamWife]["FAMC"] == indi[wifeFamWife]["FAMC"]:
+                        result += "ANOMALY: FAMILY: US19: " + famID + ": Individual (" + husbID + ") is married to first cousin (" + wifeID + ")\n"
+                except:
+                    pass
+                # husband dad and wife mom siblings
+                try:
+                    if indi[husbFamHusb]["FAMC"] == indi[wifeFamWife]["FAMC"]:
+                        result += "ANOMALY: FAMILY: US19: " + famID + ": Individual (" + husbID + ") is married to first cousin (" + wifeID + ")\n"
+                except:
+                    pass
+                # husband mom and wife dad siblings
+                try:
+                    if indi[husbFamWife]["FAMC"] == indi[wifeFamHusb]["FAMC"]:
+                       result += "ANOMALY: FAMILY: US19: " + famID + ": Individual (" + husbID + ") is married to first cousin (" + wifeID + ")\n"
+                except:
+                    pass
+            else:
+                pass
+        else:
+            pass
+    return result
+
+# Checks for marriages between aunts/uncles and nieces/nephews
+def checkUS20():
+    result = ""
+    for row in famTable:
+        row.header = False
+        row.border = False
+        famID = row.get_string(fields = ["ID"]).strip()
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        # Check only happens if both husb and wife are children of families in GED file (need siblings for aunts/uncles)
+        if "FAMC" in indi[husbID]:
+            husbFam = indi[husbID]["FAMC"]
+            if "FAMC" in indi[wifeID]:
+                wifeFam = indi[wifeID]["FAMC"]
+                # Get id of parents of each spouse
+                husbFamHusb = fam[husbFam]["HUSB"]
+                husbFamWife = fam[husbFam]["WIFE"]
+                wifeFamHusb = fam[wifeFam]["HUSB"]
+                wifeFamWife = fam[wifeFam]["WIFE"]
+                # Compare dict "FAMC" entry for each id to see if parents of spouse and spouse are siblings
+                # husband dad and wife siblings
+                try:
+                    if indi[husbFamHusb]["FAMC"] == indi[wifeID]["FAMC"] and indi[husbFamHusb]["NAME"] != indi[wifeID]["NAME"]:
+                        result += "ANOMALY: FAMILY: US20" + famID + ": Individual (" + husbID + ") is married to parent's sibling (" + wifeID + ")\n"
+                except:
+                    pass
+                # husband mom and wife siblings
+                try:
+                    if indi[husbFamWife]["FAMC"] == indi[wifeID]["FAMC"] and indi[husbFamWife]["NAME"] != indi[wifeID]["NAME"]:
+                        result += "ANOMALY: FAMILY: US20: " + famID + ": Individual (" + husbID + ") is married to parent's sibling (" + wifeID + ")\n"
+                except:
+                    pass
+                # husband and wife mom siblings
+                try:
+                    if indi[husbID]["FAMC"] == indi[wifeFamWife]["FAMC"] and indi[husbID]["NAME"] != indi[wifeFamWife]["NAME"]:
+                        result += "ANOMALY: FAMILY: US20: " + famID + ": Individual (" + husbID + ") is married to parent's sibling (" + wifeID + ")\n"
+                except:
+                    pass
+                # husband and wife dad siblings
+                try:
+                    if indi[husbID]["FAMC"] == indi[wifeFamHusb]["FAMC"] and indi[husbID]["NAME"] != indi[wifeFamHusb]["NAME"]:
+                       result += "ANOMALY: FAMILY: US20: " + famID + ": Individual (" + husbID + ") is married to parent's sibling (" + wifeID + ")\n"
+                except:
+                    pass 
+    return result
+
 # Flags help select which dict and where to input data
 current = ""
 which_dict = ""
@@ -623,5 +719,7 @@ print(checkUS11(), end = "")
 print(checkUS16(), end = "")
 print(checkUS17(), end = "")
 print(checkUS18(), end = "")
+print(checkUS19(), end = "")
+print(checkUS20(), end = "")
 
 f.close()
