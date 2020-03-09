@@ -18,7 +18,6 @@ indi = {}
 fam = {}
 
 
-
 # formats the date into YYYY-MM-DD
 def formatDate(date):
     newDate = date.split()
@@ -425,6 +424,42 @@ def checkUS13():
             if childin != "NA" and childin == nextchildin and birthDate > nextDate:
                 result += "ANOMALY: FAMILY: US13: " + childin+ "Individual (" + childID + ") spacing is too large from sibling (" + nextID + ")\n"
         i += 1
+    return result
+
+# Checks to make sure no more than 5 children are born at a time
+def checkUS14():
+    result = ""
+    famTable.header = False
+    famTable.border = False
+    for row in famTable:
+        # Get the list of children
+        children = children = row.get_string(fields = ["Children"]).replace(" ", "").replace("'", "").replace("[", "").replace("]", "").strip().split(",")
+        # print(children)
+        birthdays = {}
+        for child in children:
+            if child != "NA":
+                bday = datetime.datetime.strptime(formatDate(indi[child]["BIRT"]), '%Y-%m-%d').date()
+                if str(bday) in birthdays:
+                    birthdays[str(bday)]+=1
+                else:
+                    birthdays[str(bday)] = 1
+
+        for day in birthdays:
+            if birthdays[day]>=5:
+                result += "ANOMALY: FAMILY: US14: Family ("+row.get_string(fields=["ID"])+") has 5 or more children born on "+day +"\n"
+    return result
+
+# Checks to make sure no more than 15 children are in a family
+def checkUS15():
+    result = ""
+    result = ""
+    famTable.header = False
+    famTable.border = False
+    for row in famTable:
+        # Get the list of children
+        children = row.get_string(fields = ["Children"]).replace(" ", "").replace("'", "").replace("[", "").replace("]", "").strip().split(",")
+        if len(children)>=15:
+            result += "ANOMALY: FAMILY: US15: Family (" + row.get_string(fields=["ID"]) + ") has 15 or more children\n"
     return result
 
 # Checks that all the males have the same last name in their family
