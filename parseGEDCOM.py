@@ -395,7 +395,7 @@ def checkUS12():
                     if iD == i:
                         childAge = int(rowI.get_string(fields=["Age"]).strip(), 10)
                         if childAge - currAge < 60:
-                            result += "ANOMALY: FAMILY: US12: " + row.get_string(fields=["ID"])+ "Parent is too old to hav (" + iD + ")\n"
+                            result += "ANOMALY: FAMILY: US12: " + row.get_string(fields=["ID"])+ "Parent is too old to have (" + iD + ")\n"
     return result
 
 # Checks the siblings spacing
