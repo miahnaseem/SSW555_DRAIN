@@ -1,0 +1,149 @@
++-------+--------------------+--------+------------+-----+-------+------------+-------+--------+
+|   ID  |        Name        | Gender |  Birthday  | Age | Alive |   Death    | Child | Spouse |
++-------+--------------------+--------+------------+-----+-------+------------+-------+--------+
+|  @I1@ |  Adeline /Bloom/   |   F    | 1999-12-21 |  20 |  True |     NA     |  @F1@ | @F13@  |
+|  @I2@ |  Nicholas /Bloom/  |   M    | 2070-07-04 | -51 |  True |     NA     |  @F2@ |  @F1@  |
+|  @I3@ |  Cassandra /Swan/  |   F    | 1972-08-03 |  47 |  True |     NA     |  @F3@ |  @F1@  |
+|  @I4@ |   James /Bloom/    |   M    | 2004-10-12 | -10 | False | 1994-11-10 |  @F1@ |   NA   |
+|  @I5@ |   Jayde /Bloom/    |   F    | 2004-10-12 |  15 |  True |     NA     |  @F1@ | @F14@  |
+|  @I6@ |    John /Swan/     |   M    | 1950-12-27 |  69 |  True |     NA     |  @F4@ |  @F3@  |
+|  @I7@ |   Selina /Moon/    |   F    | 1913-08-25 | 106 |  True |     NA     |   NA  |  @F3@  |
+|  @I8@ |  Elizabeth /Swan/  |   F    | 1973-03-05 |  47 |  True |     NA     |  @F3@ | @F14@  |
+|  @I9@ |  William /Turner/  |   M    | 1972-03-05 |  30 | False | 2002-08-04 |   NA  |  @F6@  |
+| @I10@ |   Ariel /Turner/   |   F    | 2001-04-04 |  18 |  True |     NA     |  @F6@ | @F13@  |
+| @I11@ | Lysandra /Turner/  |   F    | 2000-04-04 |  19 |  True |     NA     |  @F6@ | @F15@  |
+| @I12@ |   Eric /Alister/   |   M    | 1970-12-05 |  28 | False | 1999-04-09 |   NA  |  @F5@  |
+| @I13@ | Fredrick /Alister/ |   M    | 2006-11-06 |  13 |  True |     NA     |  @F5@ |   NA   |
+| @I14@ |   Edward /Bloom/   |   M    | 1970-04-03 |  49 |  True |     NA     |   NA  |  @F2@  |
+| @I15@ |   Fiona /Green/    |   F    | 1948-06-04 |  71 |  True |     NA     |   NA  |  @F2@  |
+| @I16@ |    David /Test/    |   M    | 1975-04-05 |  -5 | False | 1970-07-02 |  @F2@ |  @F7@  |
+| @I17@ |   Kevinne /Draw/   |   F    | 2010-11-01 |  9  |  True |     NA     |  @F9@ |  @F8@  |
+| @I18@ |   Charlie /Swan/   |   M    | 1922-05-04 |  68 | False | 1990-11-09 |   NA  |  @F4@  |
+| @I19@ |  Serena /Prince/   |   F    | 1925-07-05 |  75 | False | 2000-09-01 |   NA  |  @F4@  |
+| @I20@ |   Leanna /Swan/    |   F    | 1800-07-28 | 180 | False | 1980-10-27 |  @F4@ |   NA   |
+| @I21@ |  Ryan /Nakajima/   |   M    | 1760-05-10 | 260 |  True |     NA     | @F10@ |  @F8@  |
+| @I22@ |    Cosmo /Draw/    |   M    | 1949-10-11 |  70 |  True |     NA     |   NA  |  @F9@  |
+| @I23@ |   Wanda /Smith/    |   F    | 1950-12-04 |  22 | False | 1973-02-05 |   NA  |  @F9@  |
+| @I24@ |  Annabeth /Chase/  |   F    | 1726-11-11 |  23 | False | 1750-07-20 |   NA  | @F10@  |
+| @I25@ |  Percy /Nakajima/  |   M    | 1725-11-27 |  25 | False | 1750-11-29 |   NA  | @F10@  |
+| @I26@ |  Neko /Nakajima/   |   M    | 1999-08-09 |  20 |  True |     NA     |  @F8@ | @F11@  |
+| @I27@ |   Lionel /Swan/    |   M    | 1952-01-01 |  68 |  True |     NA     |  @F4@ | @F12@  |
+| @I28@ |    Kathy /Swan/    |   F    | 1952-01-01 |  68 |  True |     NA     |  @F4@ | @F12@  |
+| @I29@ | Jonathan /Martin/  |   M    | 2001-04-09 |  18 |  True |     NA     |   NA  | @F15@  |
+| @I30@ |   Dave1 /Martin/   |   M    | 2027-07-07 |  -8 |  True |     NA     | @F15@ |   NA   |
+| @I31@ |   Dave2 /Martin/   |   M    | 2027-07-07 |  -8 |  True |     NA     | @F15@ |   NA   |
+| @I32@ |   Dave3 /Martin/   |   M    | 2027-07-07 |  -8 |  True |     NA     | @F15@ |   NA   |
+| @I33@ |   Dave4 /Martin/   |   M    | 2027-07-07 |  -8 |  True |     NA     | @F15@ |   NA   |
+| @I34@ |   Dave5 /Martin/   |   M    | 2027-07-07 |  -8 |  True |     NA     | @F15@ |   NA   |
+| @I35@ |   Dave6 /Martin/   |   M    | 2030-10-10 | -11 |  True |     NA     | @F15@ |   NA   |
+| @I36@ |   Dave7 /Martin/   |   M    | 2030-10-10 | -11 |  True |     NA     | @F15@ |   NA   |
+| @I37@ |   Dave8 /Martin/   |   M    | 2030-10-10 | -11 |  True |     NA     | @F15@ |   NA   |
+| @I38@ |   Dave9 /Martin/   |   M    | 2030-10-10 | -11 |  True |     NA     | @F15@ |   NA   |
+| @I39@ |  Dave10 /Martin/   |   M    | 2032-02-18 | -12 |  True |     NA     | @F15@ |   NA   |
+| @I40@ |  Dave11 /Martin/   |   M    | 2032-02-18 | -12 |  True |     NA     | @F15@ |   NA   |
+| @I41@ |  Dave12 /Martin/   |   M    | 2032-02-18 | -12 |  True |     NA     | @F15@ |   NA   |
+| @I42@ |  Dave13 /Martin/   |   M    | 2032-02-18 | -12 |  True |     NA     | @F15@ |   NA   |
+| @I43@ |  Dave14 /Martin/   |   M    | 2032-02-18 | -12 |  True |     NA     | @F15@ |   NA   |
+| @I44@ |  Dave15 /Martin/   |   M    | 2032-02-18 | -12 |  True |     NA     | @F15@ |   NA   |
++-------+--------------------+--------+------------+-----+-------+------------+-------+--------+
++-------+------------+------------+------------+-------------------+---------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------+
+|   ID  |  Married   |  Divorced  | Husband ID |    Husband Name   | Wife ID |     Wife Name     |                                                                 Children                                                                |
++-------+------------+------------+------------+-------------------+---------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------+
+|  @F1@ | 1998-05-03 |     NA     |    @I2@    |  Nicholas /Bloom/ |   @I3@  |  Cassandra /Swan/ |                                                         ['@I1@', '@I4@', '@I5@']                                                        |
+|  @F2@ | 1963-01-03 |     NA     |   @I14@    |   Edward /Bloom/  |  @I15@  |   Fiona /Green/   |                                                            ['@I2@', '@I16@']                                                            |
+|  @F3@ | 1980-05-24 |     NA     |    @I6@    |    John /Swan/    |   @I7@  |   Selina /Moon/   |                                                             ['@I3@', '@I8@']                                                            |
+|  @F4@ | 1950-08-04 | 1975-11-12 |   @I18@    |   Charlie /Swan/  |  @I19@  |  Serena /Prince/  |                                                            ['@I6@', '@I20@']                                                            |
+|  @F5@ | 1995-10-11 |     NA     |   @I12@    |   Eric /Alister/  |   @I8@  |  Elizabeth /Swan/ |                                                                ['@I13@']                                                                |
+|  @F6@ | 1980-10-10 |     NA     |    @I9@    |  William /Turner/ |   @I8@  |  Elizabeth /Swan/ |                                                            ['@I10@', '@I11@']                                                           |
+|  @F7@ | 1999-09-07 | 1982-11-11 |   @I16@    |    David /Test/   |  @I17@  |   Kevinne /Draw/  |                                                                    NA                                                                   |
+|  @F8@ | 1900-11-11 | 2019-01-24 |   @I21@    |  Ryan /Nakajima/  |  @I17@  |   Kevinne /Draw/  |                                                                ['@I26@']                                                                |
+|  @F9@ | 1970-10-07 |     NA     |   @I22@    |    Cosmo /Draw/   |  @I23@  |   Wanda /Smith/   |                                                                ['@I17@']                                                                |
+| @F10@ | 1749-02-14 |     NA     |   @I25@    |  Percy /Nakajima/ |  @I24@  |  Annabeth /Chase/ |                                                                ['@I21@']                                                                |
+| @F11@ | 2019-09-01 |     NA     |   @I26@    |  Neko /Nakajima/  |  @I17@  |   Kevinne /Draw/  |                                                                    NA                                                                   |
+| @F12@ | 1972-11-02 |     NA     |   @I27@    |   Lionel /Swan/   |  @I28@  |    Kathy /Swan/   |                                                                    NA                                                                   |
+| @F13@ | 2020-01-01 |     NA     |    @I1@    |  Adeline /Bloom/  |  @I10@  |   Ariel /Turner/  |                                                                    NA                                                                   |
+| @F14@ | 2020-03-08 |     NA     |    @I5@    |   Jayde /Bloom/   |   @I8@  |  Elizabeth /Swan/ |                                                                    NA                                                                   |
+| @F15@ | 2020-05-10 |     NA     |   @I29@    | Jonathan /Martin/ |  @I11@  | Lysandra /Turner/ | ['@I30@', '@I31@', '@I32@', '@I33@', '@I34@', '@I35@', '@I36@', '@I37@', '@I38@', '@I39@', '@I40@', '@I41@', '@I42@', '@I43@', '@I44@'] |
++-------+------------+------------+------------+-------------------+---------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------+
+ERROR: INDIVIDUAL: US01: @I2@: Birth date 2070-07-04 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I30@: Birth date 2027-07-07 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I31@: Birth date 2027-07-07 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I32@: Birth date 2027-07-07 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I33@: Birth date 2027-07-07 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I34@: Birth date 2027-07-07 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I35@: Birth date 2030-10-10 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I36@: Birth date 2030-10-10 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I37@: Birth date 2030-10-10 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I38@: Birth date 2030-10-10 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I39@: Birth date 2032-02-18 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I40@: Birth date 2032-02-18 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I41@: Birth date 2032-02-18 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I42@: Birth date 2032-02-18 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I43@: Birth date 2032-02-18 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I44@: Birth date 2032-02-18 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US01: @I44@: Marriage date 2020-05-10 is after current date 2020-03-08
+ERROR: INDIVIDUAL: US02: @I2@: Marriage date 1998-05-03 is before Birth date 2070-07-04
+ERROR: INDIVIDUAL: US02: @I14@: Marriage date 1963-01-03 is before Birth date 1970-04-03
+ERROR: INDIVIDUAL: US02: @I17@: Marriage date 1999-09-07 is before Birth date 2010-11-01
+ERROR: INDIVIDUAL: US02: @I17@: Marriage date 1900-11-11 is before Birth date 2010-11-01
+ERROR: INDIVIDUAL: US03: @I4@: Death date 1994-11-10 is before Birth date 2004-10-12
+ERROR: INDIVIDUAL: US03: @I16@: Death date 1970-07-02 is before Birth date 1975-04-05
+ERROR: FAMILY: US04: @F7@: Divorce date 1982-11-11 is before marriage date 1999-09-07
+ERROR: INDIVIDUAL: US05: @I16@: Death date 1970-07-02 is before marriage date 1999-09-07
+ERROR: INDIVIDUAL: US06: @I16@: Death date 1970-07-02 is before divorce date 1982-11-11
+ERROR: INDIVIDUAL: US07: @I20@: More than 150 years old at death - Birth 1800-07-28: Death 1980-10-27
+ERROR: INDIVIDUAL: US07: @I21@: More than 150 years old - Birth date 1760-05-10
+ANOMALY: FAMILY: US08:  @F3@ : Child (@I3@) born 1972-08-03 before marriage on 1980-05-24
+ANOMALY: FAMILY: US08:  @F3@ : Child (@I8@) born 1973-03-05 before marriage on 1980-05-24
+ANOMALY: FAMILY: US08:  @F4@ : Child (@I20@) born 1800-07-28 before marriage on 1950-08-04
+ERROR: FAMILY: US09: @F5@: Birthday of (@I13@) on 2006-11-06 after husband's (@I12@) death on 1999-04-09
+ERROR: FAMILY: US09: @F9@: Birthday of (@I17@) on 2010-11-01 after wife's (@I23@) death on 1973-02-05
+ERROR: FAMILY: US09: @F10@: Birthday of (@I21@) on 1760-05-10 after husband's (@I25@) death on 1750-11-29 and wife's (@I24@) death on 1750-07-20
+ANOMALY: FAMILY: US10: @F1@: Husband (@I2@) married before the age of 14
+ANOMALY: FAMILY: US10: @F2@: Husband (@I14@) married before the age of 14
+ANOMALY: FAMILY: US10: @F6@: Husband (@I9@) and Wife (@I8@) married before the age of 14
+ANOMALY: FAMILY: US10: @F7@: Wife (@I17@) married before the age of 14
+ANOMALY: FAMILY: US10: @F8@: Wife (@I17@) married before the age of 14
+ANOMALY: FAMILY: US10: @F11@: Wife (@I17@) married before the age of 14
+ANOMALY: INDIVIDUAL: US11: Individual (@I8@) married to multiple people at the same time
+ANOMALY: FAMILY: US12:  @F1@ Parent is too old to have (@I1@)
+ANOMALY: FAMILY: US12:  @F1@ Parent is too old to have (@I4@)
+ANOMALY: FAMILY: US12:  @F1@ Parent is too old to have (@I5@)
+ANOMALY: FAMILY: US12:  @F2@ Parent is too old to have (@I2@)
+ANOMALY: FAMILY: US12:  @F2@ Parent is too old to have (@I16@)
+ANOMALY: FAMILY: US12:  @F3@ Parent is too old to have (@I3@)
+ANOMALY: FAMILY: US12:  @F3@ Parent is too old to have (@I8@)
+ANOMALY: FAMILY: US12:  @F4@ Parent is too old to have (@I6@)
+ANOMALY: FAMILY: US12:  @F4@ Parent is too old to have (@I20@)
+ANOMALY: FAMILY: US12:  @F5@ Parent is too old to have (@I13@)
+ANOMALY: FAMILY: US12:  @F6@ Parent is too old to have (@I10@)
+ANOMALY: FAMILY: US12:  @F6@ Parent is too old to have (@I11@)
+ANOMALY: FAMILY: US12:  @F8@ Parent is too old to have (@I26@)
+ANOMALY: FAMILY: US12:  @F9@ Parent is too old to have (@I17@)
+ANOMALY: FAMILY: US12:  @F10@ Parent is too old to have (@I21@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I30@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I31@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I32@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I33@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I34@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I35@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I36@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I37@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I38@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I39@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I40@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I41@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I42@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I43@)
+ANOMALY: FAMILY: US12:  @F15@ Parent is too old to have (@I44@)
+ANOMALY: FAMILY: US13: @F2@Individual (@I2@) spacing is too large from sibling (@I16@)
+ANOMALY: FAMILY: US13: @F4@Individual (@I6@) spacing is too large from sibling (@I20@)
+ANOMALY: FAMILY: US13: @F6@Individual (@I10@) spacing is too large from sibling (@I11@)
+ANOMALY: FAMILY: US14: Family ( @F15@ ) has 5 or more children born on 2027-07-07
+ANOMALY: FAMILY: US14: Family ( @F15@ ) has 5 or more children born on 2032-02-18
+ANOMALY: FAMILY: US15: Family ( @F15@ ) has 15 or more children
+ANOMALY: INDIVIDUAL: US16: Individual (@I16@) does not have a matching family last name
+ANOMALY: FAMILY: US17: @F11@: Wife (@I17@) marries Child (@I26@)
+ANOMALY: FAMILY: US18: @F12@: Individual (@I27@) is married to sibling (@I28@)
+ANOMALY: FAMILY: US19: @F13@: Individual (@I1@) is married to first cousin (@I10@)
+ANOMALY: FAMILY: US20: @F14@: Individual (@I5@) is married to parent's sibling (@I8@)
