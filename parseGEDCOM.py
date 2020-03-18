@@ -637,6 +637,42 @@ def checkUS20():
                     pass 
     return result
 
+# Lists deceased individuals
+def checkUS29():
+    result = "Deceased:\n"
+    # loops through indiTable
+    for row in indiTable:
+        # removes headers and borders
+        row.header = False
+        row.border = False
+        # gets the value under the Death column
+        dead = row.get_string(fields = ["Death"]).strip()
+        # sees if the individual is dead or not
+        if dead == 'NA':
+            continue
+        else:
+            # adds individual's id, name, and death date to result if they have a death date
+            result += row.get_string(fields = ["ID"]).strip() + " " + row.get_string(fields = ["Name"]).strip() + " " + dead + "\n"
+    return result
+
+# Lists individuals that are living and married
+def checkUS30():
+    result = "Living and Married:\n"
+    # loops through IndiTable
+    for row in indiTable:
+        # removes headers and borders
+        row.header = False
+        row.border = False
+        # gets the ID of the individual
+        iD = row.get_string(fields = ["ID"]).strip().replace("'", "")
+        # gets the FamID of the family that the individual is a spouse in
+        spouse = row.get_string(fields = ["Spouse"]).strip()
+        # gets the value of the individuals death date if there is one
+        dead = row.get_string(fields = ["Death"]).strip()
+        # if the individual is not dead and they have a spouse then their name, id, and marriage date will be added to the result
+        if dead == 'NA' and spouse != 'NA':
+            result += iD + " " + row.get_string(fields = ["Name"]).strip() + " " + fam[spouse]["MARR"] + "\n"
+    return result
 # Flags help select which dict and where to input data
 current = ""
 which_dict = ""
@@ -794,25 +830,27 @@ for key in fam:
 
 print(famTable)
 
-print(checkUS01(), end = "")
-print(checkUS02(), end = "")
-print(checkUS03(), end = "")
-print(checkUS04(), end = "")
-print(checkUS05(), end = "")
-print(checkUS06(), end = "")
-print(checkUS07(), end = "")
-print(checkUS08(), end = "")
-print(checkUS09(), end = "")
-print(checkUS10(), end = "")
-print(checkUS11(), end = "")
-print(checkUS12(), end = "")
-print(checkUS13(), end = "")
-print(checkUS14(), end = "")
-print(checkUS15(), end = "")
-print(checkUS16(), end = "")
-print(checkUS17(), end = "")
-print(checkUS18(), end = "")
-print(checkUS19(), end = "")
-print(checkUS20(), end = "")
+# print(checkUS01(), end = "")
+# print(checkUS02(), end = "")
+# print(checkUS03(), end = "")
+# print(checkUS04(), end = "")
+# print(checkUS05(), end = "")
+# print(checkUS06(), end = "")
+# print(checkUS07(), end = "")
+# print(checkUS08(), end = "")
+# print(checkUS09(), end = "")
+# print(checkUS10(), end = "")
+# print(checkUS11(), end = "")
+# print(checkUS12(), end = "")
+# print(checkUS13(), end = "")
+# print(checkUS14(), end = "")
+# print(checkUS15(), end = "")
+# print(checkUS16(), end = "")
+# print(checkUS17(), end = "")
+# print(checkUS18(), end = "")
+# print(checkUS19(), end = "")
+# print(checkUS20(), end = "")
+# print(checkUS29(), end = "")
+# print(checkUS30(), end = "")
 
 f.close()
