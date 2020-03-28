@@ -637,6 +637,50 @@ def checkUS20():
                     pass 
     return result
 
+# Checks that each husband and wife is the appropriate gender for the role
+def checkUS21():
+    result = ""
+    for row in famTable:
+        row.header = False
+        row.border = False
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        if(indi[husbID]["SEX"] != "M"):
+            result+= "ANOMALY: FAMILY: US21: "+ row.get_string(fields = ["ID"]).strip() + ": Husband ("+husbID+") is not marked as male\n"
+        if(indi[wifeID]["SEX"] != "F"):
+            result+= "ANOMALY: FAMILY: US21: "+ row.get_string(fields = ["ID"]).strip() + ": Wife ("+wifeID+") is not marked as female\n"
+
+    return result
+
+# Checks that each individual has a unique name and birth date
+def checkUS23():
+    result = ""
+    names = {}
+    for row in indiTable:
+        row.header = False
+        row.border = False
+        currentName = row.get_string(fields = ["Name"]).strip()
+        currentBday = datetime.datetime.strptime(row.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
+        currentId = row.get_string(fields = ["ID"]).strip()
+        if currentName in names:
+            found = False
+            for ID in names[currentName]:
+                birt = datetime.datetime.strptime(formatDate(indi[ID]["BIRT"]),'%Y-%m-%d').date()
+                if birt == currentBday:
+                    if not found:
+                        result += "ERROR: INDIVIDUAL: US23: "+currentId+": Individual ("+currentId+") has the same name \""+currentName+"\" and birthdate "+str(currentBday)+" as other individual(s) ("+ID
+                        found = True
+                    else:
+                        result += ", "+ID
+            if found:
+                result += ")\n"
+            names[currentName] = names[currentName] + [currentId]
+
+        else:
+            names[currentName] = [currentId]
+
+    return result
+
 # Lists deceased individuals
 def checkUS29():
     result = "Deceased:\n"
@@ -673,6 +717,9 @@ def checkUS30():
         if dead == 'NA' and spouse != 'NA':
             result += iD + " " + row.get_string(fields = ["Name"]).strip() + " " + fam[spouse]["MARR"] + "\n"
     return result
+
+
+
 # Flags help select which dict and where to input data
 current = ""
 which_dict = ""
@@ -850,6 +897,8 @@ print(famTable)
 # print(checkUS18(), end = "")
 # print(checkUS19(), end = "")
 # print(checkUS20(), end = "")
+# print(checkUS21(), end = "")
+print(checkUS23(), end = "")
 # print(checkUS29(), end = "")
 # print(checkUS30(), end = "")
 
