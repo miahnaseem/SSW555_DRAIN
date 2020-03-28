@@ -1,5 +1,6 @@
 import sys
 import datetime
+import collections
 from prettytable import PrettyTable
 # Dictionary of all the valid tags and their corresponding level
 tags = {
@@ -673,6 +674,42 @@ def checkUS30():
         if dead == 'NA' and spouse != 'NA':
             result += iD + " " + row.get_string(fields = ["Name"]).strip() + " " + fam[spouse]["MARR"] + "\n"
     return result
+
+# Lists individuals that are living single
+def checkUS31():
+    result = "Living and Single:\n"
+    # loops through IndiTable
+    for row in indiTable:
+        # removes headers and borders
+        row.header = False
+        row.border = False
+        # gets the ID of the individual
+        iD = row.get_string(fields = ["ID"]).strip().replace("'", "")
+        # gets the FamID of the family that the individual is a spouse in
+        spouse = row.get_string(fields = ["Spouse"]).strip()
+        # gets the value of the individuals death date if there is one
+        dead = row.get_string(fields = ["Death"]).strip()
+        # if the individual is not dead and they have a spouse then their name and id will be added to the result
+        if dead == 'NA' and spouse == 'NA':
+            result += iD + " " + row.get_string(fields = ["Name"]).strip() + " " + "\n"
+    return result
+    
+# Lists individuals that have the same birthday
+def checkUS32():
+    result = "Multiple birthdays:\n"
+    birthday_list =[]
+    # loops through IndiTable
+    for row in indiTable:
+        # removes headers and borders
+        row.header = False
+        row.border = False
+        # gets the ID of the individual
+        iD = row.get_string(fields = ["ID"]).strip().replace("'", "")
+        bday = datetime.datetime.strptime(row.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
+        birthday_list.append(str(bday))          
+    result += str([item for item, count in collections.Counter(birthday_list).items() if count > 1]) + "\n"
+    return result
+
 # Flags help select which dict and where to input data
 current = ""
 which_dict = ""
@@ -852,5 +889,7 @@ print(famTable)
 # print(checkUS20(), end = "")
 # print(checkUS29(), end = "")
 # print(checkUS30(), end = "")
+print(checkUS31(), end = "")
+print(checkUS32(), end = "")
 
 f.close()
