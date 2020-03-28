@@ -655,30 +655,30 @@ def checkUS21():
 # Checks that each individual has a unique name and birth date
 def checkUS23():
     result = ""
-    names = {}
+    names = {} # keeps track of names we have seen, along with the IDs that have that name
     for row in indiTable:
         row.header = False
         row.border = False
         currentName = row.get_string(fields = ["Name"]).strip()
         currentBday = datetime.datetime.strptime(row.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
         currentId = row.get_string(fields = ["ID"]).strip()
+        # if there is a duplicate name, compares the birthdates of those individuals
         if currentName in names:
-            found = False
+            found = False # keeps track of whether or not a duplicate name has been found
             for ID in names[currentName]:
                 birt = datetime.datetime.strptime(formatDate(indi[ID]["BIRT"]),'%Y-%m-%d').date()
                 if birt == currentBday:
                     if not found:
                         result += "ERROR: INDIVIDUAL: US23: "+currentId+": Individual ("+currentId+") has the same name \""+currentName+"\" and birthdate "+str(currentBday)+" as other individual(s) ("+ID
                         found = True
-                    else:
+                    else: # if there is more than one duplicate, will list all of them
                         result += ", "+ID
             if found:
                 result += ")\n"
             names[currentName] = names[currentName] + [currentId]
-
+        # adds new names to the list
         else:
             names[currentName] = [currentId]
-
     return result
 
 # Lists deceased individuals
