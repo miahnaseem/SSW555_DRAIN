@@ -396,7 +396,7 @@ def checkUS12():
                     if iD == i:
                         childAge = int(rowI.get_string(fields=["Age"]).strip(), 10)
                         if childAge - currAge < 60:
-                            result += "ANOMALY: FAMILY: US12: " + row.get_string(fields=["ID"])+ "Parent is too old to have (" + iD + ")\n"
+                            result += "ANOMALY: FAMILY: US12: " + row.get_string(fields=["ID"]).strip() + " Parent is too old to have (" + iD + ")\n"
     return result
 
 # Checks the siblings spacing
@@ -423,7 +423,7 @@ def checkUS13():
             nextID = rw.get_string(fields = ["ID"]).strip()
             # sees if the the two individuals are children and spouses in the same family
             if childin != "NA" and childin == nextchildin and birthDate > nextDate:
-                result += "ANOMALY: FAMILY: US13: " + childin+ "Individual (" + childID + ") spacing is too large from sibling (" + nextID + ")\n"
+                result += "ANOMALY: FAMILY: US13: " + childin + " Individual (" + childID + ") spacing is too large from sibling (" + nextID + ")\n"
         i += 1
     return result
 
@@ -642,37 +642,35 @@ def getFirstName(name):
     firstName = name[:name.index("/")]
     return firstName
 
-# Checks that all first names are unique in each family
+# Checks that all children have unique first names and birthdays in each family
 def checkUS25():
     result = ""
     famTable.header = False
     famTable.border = False
     for row in famTable:
         firstNames = []
-        # Get the husband's name and add the first name to the list of first names
-        husbName = row.get_string(fields = ["Husband Name"]).replace(" ", "").strip()
-        firstNames.append(getFirstName(husbName))
-        # Get the wife's name and add the first name to the list of first names
-        wifeName = row.get_string(fields = ["Wife Name"]).replace(" ", "").strip()
-        firstNames.append(getFirstName(wifeName))
         # Get the list of children
         children = row.get_string(fields = ["Children"]).replace(" ", "").replace("'", "").replace("[", "").replace("]", "").strip().split(",")
-        # Loops through each child and adds their first name
+        # Loops through each child and adds their first name and birthday
         for child in children:
             if child != "NA":
-                firstNames.append(getFirstName(indi[child]["NAME"].replace(" ", "").strip()))
-        # Keeps track of the duplicate first names
+                names = {}
+                names["name"] = getFirstName(indi[child]["NAME"].replace(" ", "").strip())
+                names["DOB"] = str(datetime.datetime.strptime(formatDate(indi[child]["BIRT"]), "%Y-%m-%d").date())
+                firstNames.append(names)
+        # Keeps track of the duplicate first names and birthdays
         seen = {}
         dupes = []
         for x in firstNames:
-            if x not in seen:
-                seen[x] = 1
+            if x["name"] not in seen:
+                seen[x["name"]] = 1
             else:
-                if seen[x] == 1:
+                if seen[x["name"]] == 1:
                     dupes.append(x)
-                seen[x] += 1
+                seen[x["name"]] += 1
+        # Building the result string
         for dupe in dupes:
-            result += "ANOMALY: FAMILY: US25: Family " + row.get_string(fields = ["ID"]).replace(" ", "").strip() + " has multiple individuals with the same first name " + dupe + "\n"
+            result += "ERROR: FAMILY: US25: Family " + row.get_string(fields = ["ID"]).replace(" ", "").strip() + " has multiple individuals with the same first name " + dupe["name"] + " and birthday " + dupe["DOB"] + "\n"
     return result
 
 # Orders siblings by age
@@ -760,7 +758,7 @@ def checkUS31():
         dead = row.get_string(fields = ["Death"]).strip()
         # if the individual is not dead and they have a spouse then their name and id will be added to the result
         if dead == 'NA' and spouse == 'NA':
-            result += iD + " " + row.get_string(fields = ["Name"]).strip() + " " + "\n"
+            result += iD + " " + row.get_string(fields = ["Name"]).strip() + "\n"
     return result
     
 # Lists individuals that have the same birthday
@@ -957,7 +955,7 @@ print(famTable)
 # print(checkUS19(), end = "")
 # print(checkUS20(), end = "")
 # print(checkUS25(), end = "")
-print(checkUS28(), end = "")
+# print(checkUS28(), end = "")
 # print(checkUS29(), end = "")
 # print(checkUS30(), end = "")
 # print(checkUS31(), end = "")
