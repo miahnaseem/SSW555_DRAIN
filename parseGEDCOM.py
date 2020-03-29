@@ -638,7 +638,6 @@ def checkUS20():
                     pass 
     return result
 
-<<<<<<< HEAD
 # Checks if families are unique by spouse name and marriage date
 def checkUS24():
     result = ""
@@ -663,7 +662,8 @@ def checkUS24():
         else:
             # else make new entry for fam
             famData[famID] = famEntry
-=======
+    return result
+
 def getFirstName(name):
     firstName = name[:name.index("/")]
     return firstName
@@ -729,7 +729,6 @@ def checkUS28():
         if siblings:
             result = result[:-2]
         result += "\n"
->>>>>>> 135105a512d8490b16c246d282440f2546ee665f
     return result
 
 # Lists deceased individuals
@@ -1002,6 +1001,8 @@ print(checkUS18(), end = "")
 print(checkUS19(), end = "")
 print(checkUS20(), end = "")
 print(checkUS24(), end = "")
+print(checkUS25(), end = "")
+print(checkUS28(), end = "")
 print(checkUS29(), end = "")
 print(checkUS30(), end = "")
 print(checkUS31(), end = "")
