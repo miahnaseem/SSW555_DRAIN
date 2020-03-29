@@ -5,7 +5,7 @@ import parseGEDCOM
 class us29Test(unittest.TestCase):
     def testUS29(self):
         self.assertEqual(parseGEDCOM.checkUS29(),
-            "Deceased:\n" +
+            "US29: Deceased:\n" +
             "@I4@ James /Bloom/ 1994-11-10\n" +
             "@I9@ William /Turner/ 2002-08-04\n" +
             "@I12@ Eric /Alister/ 1999-04-09\n" +
