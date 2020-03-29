@@ -4,7 +4,7 @@ import parseGEDCOM
 class us10Test(unittest.TestCase):
     def testUS28(self):
         self.assertEqual(parseGEDCOM.checkUS28(),
-        	"Siblings from oldest to youngest:\n" +
+        	"US28: Siblings from oldest to youngest:\n" +
             "Family @F1@: @I1@, @I4@, @I5@\n" +
             "Family @F2@: @I16@, @I2@\n" +
             "Family @F3@: @I3@, @I8@\n" +
