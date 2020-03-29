@@ -675,7 +675,7 @@ def checkUS25():
 
 # Orders siblings by age
 def checkUS28():
-    result = "Siblings from oldest to youngest:\n"
+    result = "US28: Siblings from oldest to youngest:\n"
     famTable.header = False
     famTable.border = False
     for row in famTable:
@@ -707,7 +707,7 @@ def checkUS28():
 
 # Lists deceased individuals
 def checkUS29():
-    result = "Deceased:\n"
+    result = "US29: Deceased:\n"
     # loops through indiTable
     for row in indiTable:
         # removes headers and borders
@@ -725,7 +725,7 @@ def checkUS29():
 
 # Lists individuals that are living and married
 def checkUS30():
-    result = "Living and Married:\n"
+    result = "US30: Living and Married:\n"
     # loops through IndiTable
     for row in indiTable:
         # removes headers and borders
@@ -744,7 +744,7 @@ def checkUS30():
 
 # Lists individuals that are living single
 def checkUS31():
-    result = "Living and Single:\n"
+    result = "US31: Living and Single:\n"
     # loops through IndiTable
     for row in indiTable:
         # removes headers and borders
@@ -763,7 +763,7 @@ def checkUS31():
     
 # Lists individuals that have the same birthday
 def checkUS32():
-    result = "Multiple birthdays:\n"
+    result = "US32: Multiple birthdays:\n"
     birthday_list =[]
     # loops through IndiTable
     for row in indiTable:
@@ -954,8 +954,8 @@ print(famTable)
 # print(checkUS18(), end = "")
 # print(checkUS19(), end = "")
 # print(checkUS20(), end = "")
-# print(checkUS25(), end = "")
-# print(checkUS28(), end = "")
+print(checkUS25(), end = "")
+print(checkUS28(), end = "")
 # print(checkUS29(), end = "")
 # print(checkUS30(), end = "")
 # print(checkUS31(), end = "")

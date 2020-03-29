@@ -5,7 +5,7 @@ import parseGEDCOM
 class us31Test(unittest.TestCase):
     def testUS31(self):
         self.assertEqual(parseGEDCOM.checkUS31(),
-            "Living and Single:\n"+
+            "US31: Living and Single:\n"+
             "@I13@ Fredrick /Alister/\n" +
             "@I30@ Dave /Martin/\n" +
             "@I31@ Dave /Martin/\n" +
