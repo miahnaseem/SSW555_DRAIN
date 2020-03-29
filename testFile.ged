@@ -11,8 +11,8 @@
 1 FAMS @F13@
 1 FAMC @F1@
 0 @I2@ INDI
-1 NAME Nicholas /Bloom/
-2 GIVN Nicholas
+1 NAME Edward /Bloom/
+2 GIVN Edward
 2 SURN Bloom
 2 _MARNM Bloom
 1 SEX M
@@ -102,8 +102,8 @@
 1 FAMS @F13@
 1 FAMC @F6@
 0 @I11@ INDI
-1 NAME Lysandra /Turner/
-2 GIVN Lysandra
+1 NAME Elizabeth /Turner/
+2 GIVN Elizabeth
 2 SURN Turner
 2 _MARNM Turner
 1 SEX F

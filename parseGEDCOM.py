@@ -638,6 +638,75 @@ def checkUS20():
                     pass 
     return result
 
+def getFirstName(name):
+    firstName = name[:name.index("/")]
+    return firstName
+
+# Checks that all first names are unique in each family
+def checkUS25():
+    result = ""
+    famTable.header = False
+    famTable.border = False
+    for row in famTable:
+        firstNames = []
+        # Get the husband's name and add the first name to the list of first names
+        husbName = row.get_string(fields = ["Husband Name"]).replace(" ", "").strip()
+        firstNames.append(getFirstName(husbName))
+        # Get the wife's name and add the first name to the list of first names
+        wifeName = row.get_string(fields = ["Wife Name"]).replace(" ", "").strip()
+        firstNames.append(getFirstName(wifeName))
+        # Get the list of children
+        children = row.get_string(fields = ["Children"]).replace(" ", "").replace("'", "").replace("[", "").replace("]", "").strip().split(",")
+        # Loops through each child and adds their first name
+        for child in children:
+            if child != "NA":
+                firstNames.append(getFirstName(indi[child]["NAME"].replace(" ", "").strip()))
+        # Keeps track of the duplicate first names
+        seen = {}
+        dupes = []
+        for x in firstNames:
+            if x not in seen:
+                seen[x] = 1
+            else:
+                if seen[x] == 1:
+                    dupes.append(x)
+                seen[x] += 1
+        for dupe in dupes:
+            result += "ANOMALY: FAMILY: US25: Family " + row.get_string(fields = ["ID"]).replace(" ", "").strip() + " has multiple individuals with the same first name " + dupe + "\n"
+    return result
+
+# Orders siblings by age
+def checkUS28():
+    result = "Siblings from oldest to youngest:\n"
+    famTable.header = False
+    famTable.border = False
+    for row in famTable:
+        # arr stores dictionaries of the id and date of birth of the siblings
+        arr = []
+        result += "Family " + row.get_string(fields = ["ID"]).replace(" ", "").strip() + ": "
+        # Get the list of children
+        children = row.get_string(fields = ["Children"]).replace(" ", "").replace("'", "").replace("[", "").replace("]", "").strip().split(",")
+        # Loops through each child and adds id and date of birth
+        for child in children:
+            if child != "NA":
+                dates = {}
+                dates["id"] = child
+                dates["DOB"] = indi[child]["BIRT"]
+                arr.append(dates)
+        # Sort arr by the date of birth from oldest to youngest
+        arr.sort(key = lambda x: datetime.datetime.strptime(formatDate(x["DOB"]), "%Y-%m-%d").date())
+        # Get just the ids and store them in siblings
+        siblings = []
+        for dicts in arr:
+            siblings.append(dicts["id"])
+        # Build the result string
+        for sibling in siblings:
+            result += sibling + ", "
+        if siblings:
+            result = result[:-2]
+        result += "\n"
+    return result
+
 # Lists deceased individuals
 def checkUS29():
     result = "Deceased:\n"
@@ -887,9 +956,11 @@ print(famTable)
 # print(checkUS18(), end = "")
 # print(checkUS19(), end = "")
 # print(checkUS20(), end = "")
+# print(checkUS25(), end = "")
+print(checkUS28(), end = "")
 # print(checkUS29(), end = "")
 # print(checkUS30(), end = "")
-print(checkUS31(), end = "")
-print(checkUS32(), end = "")
+# print(checkUS31(), end = "")
+# print(checkUS32(), end = "")
 
 f.close()
