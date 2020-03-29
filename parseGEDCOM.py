@@ -638,6 +638,32 @@ def checkUS20():
                     pass 
     return result
 
+# Checks if families are unique by spouse name and marriage date
+def checkUS24():
+    result = ""
+    # Dict to store key of family ID and value of list of husband name, wife name, marriage date
+    famData = {}
+    for row in famTable:
+        row.border = False
+        row.header = False
+        # FamId is key for famData
+        # husbName, wifeName, and marrDate in list as value for famData to be compared
+        famID = row.get_string(fields = ["ID"]).strip()
+        husbName = row.get_string(fields = ["Husband Name"]).strip()
+        wifeName = row.get_string(fields = ["Wife Name"]).strip()
+        marrDate = fam[famID]["MARR"]
+        famEntry = [husbName, wifeName, marrDate]
+        famInfo = list(famData.values())
+        # Checks if the family's entry is already in the list of values
+        if famEntry in famInfo:
+            # Get's the first instance of duplicate value within the famData dict
+            otherFam = list(famData.keys())[list(famData.values()).index(famEntry)]
+            result += "ANOMALY: FAMILY: US24: " + famID + ": Family has same husband name, wife name, and marriage date as family " + otherFam + "\n" 
+        else:
+            # else make new entry for fam
+            famData[famID] = famEntry
+    return result
+
 def getFirstName(name):
     firstName = name[:name.index("/")]
     return firstName
@@ -775,6 +801,26 @@ def checkUS32():
         bday = datetime.datetime.strptime(row.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
         birthday_list.append(str(bday))          
     result += str([item for item, count in collections.Counter(birthday_list).items() if count > 1]) + "\n"
+    return result
+
+# Lists orphans (individuals under 18 with both parents deceased)
+def checkUS33():
+    result = "Orphans:\n"
+    for row in indiTable:
+        row.header = False
+        row.border = False
+        indiID = row.get_string(fields = ["ID"]).strip().replace("'", "")
+        # Only list thoes under the age of 18
+        age = int(row.get_string(fields=["Age"]).strip(), 10)
+        if age < 18:
+            # From the FAMC tag, get family ID
+            # With family ID, get husbID ("Dad" ID) and wifeID ("Mom" ID)
+            famID = row.get_string(fields = ["Child"]).strip()
+            husbID = fam[famID]["HUSB"]
+            wifeID = fam[famID]["WIFE"]
+            # If both parents have "DEAT" value in dict, child is an orpahn
+            if "DEAT" in indi[husbID] and "DEAT" in indi[wifeID]:
+                result += indiID + " " + row.get_string(fields = ["Name"]).strip() + " " + "\n"
     return result
 
 # Flags help select which dict and where to input data
@@ -934,31 +980,33 @@ for key in fam:
 
 print(famTable)
 
-# print(checkUS01(), end = "")
-# print(checkUS02(), end = "")
-# print(checkUS03(), end = "")
-# print(checkUS04(), end = "")
-# print(checkUS05(), end = "")
-# print(checkUS06(), end = "")
-# print(checkUS07(), end = "")
-# print(checkUS08(), end = "")
-# print(checkUS09(), end = "")
-# print(checkUS10(), end = "")
-# print(checkUS11(), end = "")
-# print(checkUS12(), end = "")
-# print(checkUS13(), end = "")
-# print(checkUS14(), end = "")
-# print(checkUS15(), end = "")
-# print(checkUS16(), end = "")
-# print(checkUS17(), end = "")
-# print(checkUS18(), end = "")
-# print(checkUS19(), end = "")
-# print(checkUS20(), end = "")
+print(checkUS01(), end = "")
+print(checkUS02(), end = "")
+print(checkUS03(), end = "")
+print(checkUS04(), end = "")
+print(checkUS05(), end = "")
+print(checkUS06(), end = "")
+print(checkUS07(), end = "")
+print(checkUS08(), end = "")
+print(checkUS09(), end = "")
+print(checkUS10(), end = "")
+print(checkUS11(), end = "")
+print(checkUS12(), end = "")
+print(checkUS13(), end = "")
+print(checkUS14(), end = "")
+print(checkUS15(), end = "")
+print(checkUS16(), end = "")
+print(checkUS17(), end = "")
+print(checkUS18(), end = "")
+print(checkUS19(), end = "")
+print(checkUS20(), end = "")
+print(checkUS24(), end = "")
 print(checkUS25(), end = "")
 print(checkUS28(), end = "")
-# print(checkUS29(), end = "")
-# print(checkUS30(), end = "")
-# print(checkUS31(), end = "")
-# print(checkUS32(), end = "")
+print(checkUS29(), end = "")
+print(checkUS30(), end = "")
+print(checkUS31(), end = "")
+print(checkUS32(), end = "")
+print(checkUS33(), end = "")
 
 f.close()
