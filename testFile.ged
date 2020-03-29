@@ -55,7 +55,7 @@
 2 GIVN John
 2 SURN Swan
 2 _MARNM Swan
-1 SEX M
+1 SEX F
 1 BIRT
 2 DATE 27 DEC 1950
 1 FAMS @F3@
@@ -96,7 +96,7 @@
 2 GIVN Ariel
 2 SURN Turner
 2 _MARNM Turner
-1 SEX F
+1 SEX M
 1 BIRT
 2 DATE 4 APR 2001
 1 FAMS @F13@
@@ -312,8 +312,8 @@
 2 DATE 07 JUL 2027
 1 FAMC @F15@
 0 @I32@ INDI
-1 NAME Dave3 /Martin/
-2 GIVN Dave3
+1 NAME Dave /Martin/
+2 GIVN Dave
 2 SURN Martin
 2 _MARNM Martin
 1 SEX M
@@ -411,8 +411,8 @@
 2 DATE 18 FEB 2032
 1 FAMC @F15@
 0 @I43@ INDI
-1 NAME Dave14 /Martin/
-2 GIVN Dave14
+1 NAME Dave /Martin/
+2 GIVN Dave
 2 SURN Martin
 2 _MARNM Martin
 1 SEX M
