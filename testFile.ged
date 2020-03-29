@@ -294,8 +294,8 @@
 2 DATE 09 APR 2001
 1 FAMS @F15@
 0 @I30@ INDI
-1 NAME Dave1 /Martin/
-2 GIVN Dave1
+1 NAME Dave /Martin/
+2 GIVN Dave
 2 SURN Martin
 2 _MARNM Martin
 1 SEX M
@@ -303,8 +303,8 @@
 2 DATE 07 JUL 2027
 1 FAMC @F15@
 0 @I31@ INDI
-1 NAME Dave2 /Martin/
-2 GIVN Dave2
+1 NAME Dave /Martin/
+2 GIVN Dave
 2 SURN Martin
 2 _MARNM Martin
 1 SEX M
@@ -393,8 +393,8 @@
 2 DATE 18 FEB 2032
 1 FAMC @F15@
 0 @I41@ INDI
-1 NAME Dave12 /Martin/
-2 GIVN Dave12
+1 NAME Dave11 /Martin/
+2 GIVN Dave11
 2 SURN Martin
 2 _MARNM Martin
 1 SEX M
