@@ -2,10 +2,10 @@ import unittest
 import parseGEDCOM
 
 
-class us29Test(unittest.TestCase):
+class us30Test(unittest.TestCase):
     def testUS30(self):
         self.assertEqual(parseGEDCOM.checkUS30(),
-            "Living and Married:\n" +
+            "US30: Living and Married:\n" +
             "@I1@ Adeline /Bloom/ 01 JAN 2020\n" +
             "@I2@ Nicholas /Bloom/ 3 MAY 1998\n" +
             "@I3@ Cassandra /Swan/ 3 MAY 1998\n" +

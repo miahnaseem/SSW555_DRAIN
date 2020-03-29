@@ -1,5 +1,6 @@
 import sys
 import datetime
+import collections
 from prettytable import PrettyTable
 # Dictionary of all the valid tags and their corresponding level
 tags = {
@@ -395,7 +396,7 @@ def checkUS12():
                     if iD == i:
                         childAge = int(rowI.get_string(fields=["Age"]).strip(), 10)
                         if childAge - currAge < 60:
-                            result += "ANOMALY: FAMILY: US12: " + row.get_string(fields=["ID"])+ "Parent is too old to have (" + iD + ")\n"
+                            result += "ANOMALY: FAMILY: US12: " + row.get_string(fields=["ID"]).strip() + " Parent is too old to have (" + iD + ")\n"
     return result
 
 # Checks the siblings spacing
@@ -422,7 +423,7 @@ def checkUS13():
             nextID = rw.get_string(fields = ["ID"]).strip()
             # sees if the the two individuals are children and spouses in the same family
             if childin != "NA" and childin == nextchildin and birthDate > nextDate:
-                result += "ANOMALY: FAMILY: US13: " + childin+ "Individual (" + childID + ") spacing is too large from sibling (" + nextID + ")\n"
+                result += "ANOMALY: FAMILY: US13: " + childin + " Individual (" + childID + ") spacing is too large from sibling (" + nextID + ")\n"
         i += 1
     return result
 
@@ -681,9 +682,102 @@ def checkUS23():
             names[currentName] = [currentId]
     return result
 
+# Checks if families are unique by spouse name and marriage date
+def checkUS24():
+    result = ""
+    # Dict to store key of family ID and value of list of husband name, wife name, marriage date
+    famData = {}
+    for row in famTable:
+        row.border = False
+        row.header = False
+        # FamId is key for famData
+        # husbName, wifeName, and marrDate in list as value for famData to be compared
+        famID = row.get_string(fields = ["ID"]).strip()
+        husbName = row.get_string(fields = ["Husband Name"]).strip()
+        wifeName = row.get_string(fields = ["Wife Name"]).strip()
+        marrDate = fam[famID]["MARR"]
+        famEntry = [husbName, wifeName, marrDate]
+        famInfo = list(famData.values())
+        # Checks if the family's entry is already in the list of values
+        if famEntry in famInfo:
+            # Get's the first instance of duplicate value within the famData dict
+            otherFam = list(famData.keys())[list(famData.values()).index(famEntry)]
+            result += "ANOMALY: FAMILY: US24: " + famID + ": Family has same husband name, wife name, and marriage date as family " + otherFam + "\n" 
+        else:
+            # else make new entry for fam
+            famData[famID] = famEntry
+    return result
+
+def getFirstName(name):
+    firstName = name[:name.index("/")]
+    return firstName
+
+# Checks that all children have unique first names and birthdays in each family
+def checkUS25():
+    result = ""
+    famTable.header = False
+    famTable.border = False
+    for row in famTable:
+        firstNames = []
+        # Get the list of children
+        children = row.get_string(fields = ["Children"]).replace(" ", "").replace("'", "").replace("[", "").replace("]", "").strip().split(",")
+        # Loops through each child and adds their first name and birthday
+        for child in children:
+            if child != "NA":
+                names = {}
+                names["name"] = getFirstName(indi[child]["NAME"].replace(" ", "").strip())
+                names["DOB"] = str(datetime.datetime.strptime(formatDate(indi[child]["BIRT"]), "%Y-%m-%d").date())
+                firstNames.append(names)
+        # Keeps track of the duplicate first names and birthdays
+        seen = {}
+        dupes = []
+        for x in firstNames:
+            if x["name"] not in seen:
+                seen[x["name"]] = 1
+            else:
+                if seen[x["name"]] == 1:
+                    dupes.append(x)
+                seen[x["name"]] += 1
+        # Building the result string
+        for dupe in dupes:
+            result += "ERROR: FAMILY: US25: Family " + row.get_string(fields = ["ID"]).replace(" ", "").strip() + " has multiple individuals with the same first name " + dupe["name"] + " and birthday " + dupe["DOB"] + "\n"
+    return result
+
+# Orders siblings by age
+def checkUS28():
+    result = "US28: Siblings from oldest to youngest:\n"
+    famTable.header = False
+    famTable.border = False
+    for row in famTable:
+        # arr stores dictionaries of the id and date of birth of the siblings
+        arr = []
+        result += "Family " + row.get_string(fields = ["ID"]).replace(" ", "").strip() + ": "
+        # Get the list of children
+        children = row.get_string(fields = ["Children"]).replace(" ", "").replace("'", "").replace("[", "").replace("]", "").strip().split(",")
+        # Loops through each child and adds id and date of birth
+        for child in children:
+            if child != "NA":
+                dates = {}
+                dates["id"] = child
+                dates["DOB"] = indi[child]["BIRT"]
+                arr.append(dates)
+        # Sort arr by the date of birth from oldest to youngest
+        arr.sort(key = lambda x: datetime.datetime.strptime(formatDate(x["DOB"]), "%Y-%m-%d").date())
+        # Get just the ids and store them in siblings
+        siblings = []
+        for dicts in arr:
+            siblings.append(dicts["id"])
+        # Build the result string
+        for sibling in siblings:
+            result += sibling + ", "
+        if siblings:
+            result = result[:-2]
+        result += "\n"
+    return result
+
 # Lists deceased individuals
 def checkUS29():
-    result = "Deceased:\n"
+    result = "US29: Deceased:\n"
     # loops through indiTable
     for row in indiTable:
         # removes headers and borders
@@ -701,7 +795,7 @@ def checkUS29():
 
 # Lists individuals that are living and married
 def checkUS30():
-    result = "Living and Married:\n"
+    result = "US30: Living and Married:\n"
     # loops through IndiTable
     for row in indiTable:
         # removes headers and borders
@@ -718,7 +812,60 @@ def checkUS30():
             result += iD + " " + row.get_string(fields = ["Name"]).strip() + " " + fam[spouse]["MARR"] + "\n"
     return result
 
+# Lists individuals that are living single
+def checkUS31():
+    result = "US31: Living and Single:\n"
+    # loops through IndiTable
+    for row in indiTable:
+        # removes headers and borders
+        row.header = False
+        row.border = False
+        # gets the ID of the individual
+        iD = row.get_string(fields = ["ID"]).strip().replace("'", "")
+        # gets the FamID of the family that the individual is a spouse in
+        spouse = row.get_string(fields = ["Spouse"]).strip()
+        # gets the value of the individuals death date if there is one
+        dead = row.get_string(fields = ["Death"]).strip()
+        # if the individual is not dead and they have a spouse then their name and id will be added to the result
+        if dead == 'NA' and spouse == 'NA':
+            result += iD + " " + row.get_string(fields = ["Name"]).strip() + "\n"
+    return result
+    
+# Lists individuals that have the same birthday
+def checkUS32():
+    result = "US32: Multiple birthdays:\n"
+    birthday_list =[]
+    # loops through IndiTable
+    for row in indiTable:
+        # removes headers and borders
+        row.header = False
+        row.border = False
+        # gets the ID of the individual
+        iD = row.get_string(fields = ["ID"]).strip().replace("'", "")
+        bday = datetime.datetime.strptime(row.get_string(fields = ["Birthday"]).strip(), '%Y-%m-%d').date()
+        birthday_list.append(str(bday))          
+    result += str([item for item, count in collections.Counter(birthday_list).items() if count > 1]) + "\n"
+    return result
 
+# Lists orphans (individuals under 18 with both parents deceased)
+def checkUS33():
+    result = "Orphans:\n"
+    for row in indiTable:
+        row.header = False
+        row.border = False
+        indiID = row.get_string(fields = ["ID"]).strip().replace("'", "")
+        # Only list thoes under the age of 18
+        age = int(row.get_string(fields=["Age"]).strip(), 10)
+        if age < 18:
+            # From the FAMC tag, get family ID
+            # With family ID, get husbID ("Dad" ID) and wifeID ("Mom" ID)
+            famID = row.get_string(fields = ["Child"]).strip()
+            husbID = fam[famID]["HUSB"]
+            wifeID = fam[famID]["WIFE"]
+            # If both parents have "DEAT" value in dict, child is an orpahn
+            if "DEAT" in indi[husbID] and "DEAT" in indi[wifeID]:
+                result += indiID + " " + row.get_string(fields = ["Name"]).strip() + " " + "\n"
+    return result
 
 # Flags help select which dict and where to input data
 current = ""
@@ -877,29 +1024,36 @@ for key in fam:
 
 print(famTable)
 
-# print(checkUS01(), end = "")
-# print(checkUS02(), end = "")
-# print(checkUS03(), end = "")
-# print(checkUS04(), end = "")
-# print(checkUS05(), end = "")
-# print(checkUS06(), end = "")
-# print(checkUS07(), end = "")
-# print(checkUS08(), end = "")
-# print(checkUS09(), end = "")
-# print(checkUS10(), end = "")
-# print(checkUS11(), end = "")
-# print(checkUS12(), end = "")
-# print(checkUS13(), end = "")
-# print(checkUS14(), end = "")
-# print(checkUS15(), end = "")
-# print(checkUS16(), end = "")
-# print(checkUS17(), end = "")
-# print(checkUS18(), end = "")
-# print(checkUS19(), end = "")
-# print(checkUS20(), end = "")
-# print(checkUS21(), end = "")
+
+print(checkUS01(), end = "")
+print(checkUS02(), end = "")
+print(checkUS03(), end = "")
+print(checkUS04(), end = "")
+print(checkUS05(), end = "")
+print(checkUS06(), end = "")
+print(checkUS07(), end = "")
+print(checkUS08(), end = "")
+print(checkUS09(), end = "")
+print(checkUS10(), end = "")
+print(checkUS11(), end = "")
+print(checkUS12(), end = "")
+print(checkUS13(), end = "")
+print(checkUS14(), end = "")
+print(checkUS15(), end = "")
+print(checkUS16(), end = "")
+print(checkUS17(), end = "")
+print(checkUS18(), end = "")
+print(checkUS19(), end = "")
+print(checkUS20(), end = "")
+print(checkUS21(), end = "")
 print(checkUS23(), end = "")
-# print(checkUS29(), end = "")
-# print(checkUS30(), end = "")
+print(checkUS24(), end = "")
+print(checkUS25(), end = "")
+print(checkUS28(), end = "")
+print(checkUS29(), end = "")
+print(checkUS30(), end = "")
+print(checkUS31(), end = "")
+print(checkUS32(), end = "")
+print(checkUS33(), end = "")
 
 f.close()
