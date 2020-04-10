@@ -867,6 +867,72 @@ def checkUS33():
                 result += indiID + " " + row.get_string(fields = ["Name"]).strip() + " " + "\n"
     return result
 
+def checkUS36():
+    result = "US36: Recent Deaths:\n"
+    # loops through indiTable
+    for row in indiTable:
+        # removes headers and borders
+        row.header = False
+        row.border = False
+        # gets the value under the Death column
+        dead = row.get_string(fields = ["Death"]).strip()
+        # sees if the individual is dead or not
+        if dead == 'NA':
+            continue
+        else:
+            # adds individual's id, name, and death date to result if they have a death date
+            cDate = datetime.date.today()
+            death = datetime.datetime.strptime(dead, '%Y-%m-%d').date()
+            if (cDate - death).days <= 30:
+                result += row.get_string(fields = ["ID"]).strip() + " " + row.get_string(fields = ["Name"]).strip() + " " + dead + "\n"
+    return result
+
+def checkUS37():
+    result = "US36: Recent Survivors:\n"
+    # list of survivor's children
+    schil = []
+    # loops through indiTable
+    for row in indiTable:
+        # removes headers and borders
+        row.header = False
+        row.border = False
+        # gets the value under the Death column
+        dead = row.get_string(fields = ["Death"]).strip()
+        # sees if the individual is dead or not
+        if dead == 'NA':
+            continue
+        else:
+            # finds current date
+            cDate = datetime.date.today()
+            # sets death date to type date
+            death = datetime.datetime.strptime(dead, '%Y-%m-%d').date()
+            # check sif death date is recent
+            if (cDate - death).days <= 30:
+                # gets their ID
+                iD = indi[row.get_string(fields=["ID"]).strip()]
+                # sees what family they are a spouse in
+                famID = indi[row.get_string(fields = ["ID"]).strip()]["FAMS"]
+                sID = ""
+                # finds the survivor's spouse's id
+                if fam[famID]["HUSB"] == iD:
+                    sID = fam[famID]["WIFE"]
+                else:
+                    sID = fam[famID]["HUSB"]
+                # checks if they're alive and adds their name and ID to result
+                if "DEAT" not in indi[sID]:
+                    result += sID + " " + indi[sID]["NAME"]
+                # gets the children in that family
+                children = fam[famID]["CHIL"]
+                # sees if they are alive and adds it to the list of survivor's children
+                for i in children:
+                    if "DEAT" not in indi[i] and i not in schil:
+                        schil.append(i)
+    # adds survivor's children to result
+    for j in schil:
+        result += j + " " + indi[j]["NAME"] + "\n"
+                
+    return result
+
 # Flags help select which dict and where to input data
 current = ""
 which_dict = ""
@@ -1025,35 +1091,37 @@ for key in fam:
 print(famTable)
 
 
-print(checkUS01(), end = "")
-print(checkUS02(), end = "")
-print(checkUS03(), end = "")
-print(checkUS04(), end = "")
-print(checkUS05(), end = "")
-print(checkUS06(), end = "")
-print(checkUS07(), end = "")
-print(checkUS08(), end = "")
-print(checkUS09(), end = "")
-print(checkUS10(), end = "")
-print(checkUS11(), end = "")
-print(checkUS12(), end = "")
-print(checkUS13(), end = "")
-print(checkUS14(), end = "")
-print(checkUS15(), end = "")
-print(checkUS16(), end = "")
-print(checkUS17(), end = "")
-print(checkUS18(), end = "")
-print(checkUS19(), end = "")
-print(checkUS20(), end = "")
-print(checkUS21(), end = "")
-print(checkUS23(), end = "")
-print(checkUS24(), end = "")
-print(checkUS25(), end = "")
-print(checkUS28(), end = "")
-print(checkUS29(), end = "")
-print(checkUS30(), end = "")
-print(checkUS31(), end = "")
-print(checkUS32(), end = "")
-print(checkUS33(), end = "")
+# print(checkUS01(), end = "")
+# print(checkUS02(), end = "")
+# print(checkUS03(), end = "")
+# print(checkUS04(), end = "")
+# print(checkUS05(), end = "")
+# print(checkUS06(), end = "")
+# print(checkUS07(), end = "")
+# print(checkUS08(), end = "")
+# print(checkUS09(), end = "")
+# print(checkUS10(), end = "")
+# print(checkUS11(), end = "")
+# print(checkUS12(), end = "")
+# print(checkUS13(), end = "")
+# print(checkUS14(), end = "")
+# print(checkUS15(), end = "")
+# print(checkUS16(), end = "")
+# print(checkUS17(), end = "")
+# print(checkUS18(), end = "")
+# print(checkUS19(), end = "")
+# print(checkUS20(), end = "")
+# print(checkUS21(), end = "")
+# print(checkUS23(), end = "")
+# print(checkUS24(), end = "")
+# print(checkUS25(), end = "")
+# print(checkUS28(), end = "")
+# print(checkUS29(), end = "")
+# print(checkUS30(), end = "")
+# print(checkUS31(), end = "")
+# print(checkUS32(), end = "")
+# print(checkUS33(), end = "")
+print(checkUS36(), end = "")
+print(checkUS37(), end = "")
 
 f.close()
