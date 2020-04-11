@@ -867,6 +867,47 @@ def checkUS33():
                 result += indiID + " " + row.get_string(fields = ["Name"]).strip() + " " + "\n"
     return result
 
+#List large age differences 
+def checkUS34():
+    result = "US34: Large Age Differences:\n"
+    for row in famTable:
+        # Get rid of the border and header of the pretty table
+        row.border = False
+        row.header = False
+
+        # Gets the relevant data from the pretty table
+        marriageDate = datetime.datetime.strptime(row.get_string(fields = ["Married"]).strip(), '%Y-%m-%d').date()
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        husbDate = datetime.datetime.strptime(formatDate(indi[husbID]["BIRT"]), '%Y-%m-%d').date()
+        wifeDate = datetime.datetime.strptime(formatDate(indi[wifeID]["BIRT"]), '%Y-%m-%d').date()
+
+        # Calculates the age when the husband and wife got married
+        husbAge = (marriageDate - husbDate).days // 365
+        wifeAge = (marriageDate - wifeDate).days // 365
+
+        # Checks if married when the older spouse was more than twice as old as the younger spouse
+        if husbAge > (wifeAge*2) or wifeAge > (husbAge*2):
+            result += husbID + ", born on " + str(husbDate) + ", married "+ wifeID + ", born on "+ str(wifeDate)+ ", on "+ str(marriageDate) + ".\n"
+    return result
+    
+#List recent births
+def checkUS35():
+    result = "US35: Recent Births:\n"
+    # loops through indiTable
+    for row in indiTable:
+        # removes headers and borders
+        row.header = False
+        row.border = False
+        # gets the value under the Birth column
+        birth = row.get_string(fields = ["Birthday"]).strip()
+        # adds individual's id, name, and birth date to result
+        cDate = datetime.date.today()
+        birthDate = datetime.datetime.strptime(birth, '%Y-%m-%d').date()
+        if (abs(birthDate - cDate)).days <= 30:
+            result += row.get_string(fields = ["ID"]).strip() + " " + row.get_string(fields = ["Name"]).strip() + " " + birth + "\n"
+    return result
+
 def checkUS36():
     result = "US36: Recent Deaths:\n"
     # loops through indiTable
@@ -1121,7 +1162,9 @@ print(famTable)
 # print(checkUS31(), end = "")
 # print(checkUS32(), end = "")
 # print(checkUS33(), end = "")
-print(checkUS36(), end = "")
-print(checkUS37(), end = "")
+print(checkUS34(), end = "")
+print(checkUS35(), end = "")
+# print(checkUS36(), end = "")
+# print(checkUS37(), end = "")
 
 f.close()
