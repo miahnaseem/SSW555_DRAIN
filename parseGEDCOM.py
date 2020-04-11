@@ -890,6 +890,7 @@ def checkUS34():
         if husbAge > (wifeAge*2) or wifeAge > (husbAge*2):
             result += husbID + ", born on " + str(husbDate) + ", married "+ wifeID + ", born on "+ str(wifeDate)+ ", on "+ str(marriageDate) + ".\n"
     return result
+    
 #List recent births
 def checkUS35():
     result = "US35: Recent Births:\n"
