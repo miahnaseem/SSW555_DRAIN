@@ -2,7 +2,7 @@ import unittest
 import parseGEDCOM
 
 
-class us36Test(unittest.TestCase):
+class us37Test(unittest.TestCase):
     def testUS37(self):
         self.assertEqual(parseGEDCOM.checkUS37(),
             "US36: Recent Survivors:\n" +
