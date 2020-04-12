@@ -655,6 +655,39 @@ def checkUS21():
 
     return result
 
+# Checks that each id used is unique
+def checkUS22():
+    result = ""
+    # Initialize two lists, one for individual ids, and another for family related ids
+    indiIDs = []
+    famIDs = []
+    # Iterate through indiTable checking each id
+    for row in indiTable:
+        row.header = False
+        row.border = False
+        currentID = row.get_string(fields = ["ID"]).strip()
+        # If individual's id is already in the list, it is a duplicate
+        if currentID in indiIDs:
+            result+= "ERROR: INDIVIDUAL: US22: Individual's ID," + currentID + ", is a duplicate\n"
+        # Otherwise add it to list
+        else:
+            indiIDs.append(currentID)
+    # Iterate through famTable checking each id
+    for row in famTable:
+        row.header = False
+        row.border = False
+        famID = row.get_string(fields = ["ID"]).strip()
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        # If the family ID is already in the list, it is a duplicate
+        # Otherwise add respective ID to the famIDs list
+        if famID in famIDs:
+            result+= "ERROR: FAMILY: US22: Family ID," + famID + ", is a duplicate\n"
+        else:
+            famIDs.append(famID)
+    return result
+
+
 # Checks that each individual has a unique name and birth date
 def checkUS23():
     result = ""
@@ -791,6 +824,19 @@ def checkUS26():
 
 	return result
 
+# Checks to make sure age is listed in the table
+def checkUS27():
+    result = ""
+    for row in indiTable:
+        row.header = False
+        row.border = False
+        # Get each respective individual's id and age
+        indiID = row.get_string(fields = ["ID"]).strip()
+        indiAge = row.get_string(fields = ["Age"]).strip()
+        # If the string of the indiAge variable is empty, that means age is not listed on table
+        if str(indiAge) == "":
+            result += "ERROR: INDIVIDUAL: US27: Individual " + indiID + "does not have age listed in table.\n"
+    return result
 
 # Orders siblings by age
 def checkUS28():
@@ -1288,10 +1334,12 @@ print(famTable)
 # print(checkUS19(), end = "")
 # print(checkUS20(), end = "")
 # print(checkUS21(), end = "")
+# print(checkUS22(), end = "")
 # print(checkUS23(), end = "")
 # print(checkUS24(), end = "")
 # print(checkUS25(), end = "")
 # print(checkUS26(), end = "")
+# print(checkUS27(), end = "")
 # print(checkUS28(), end = "")
 # print(checkUS29(), end = "")
 # print(checkUS30(), end = "")
