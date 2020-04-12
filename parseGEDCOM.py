@@ -18,6 +18,8 @@ indi = {}
 
 fam = {}
 
+fakeDates = ""
+
 
 # formats the date into YYYY-MM-DD
 def formatDate(date):
@@ -743,6 +745,53 @@ def checkUS25():
             result += "ERROR: FAMILY: US25: Family " + row.get_string(fields = ["ID"]).replace(" ", "").strip() + " has multiple individuals with the same first name " + dupe["name"] + " and birthday " + dupe["DOB"] + "\n"
     return result
 
+# Checks for corresponding entries in the families and individuals
+def checkUS26():
+	result = ""
+	# A dictionary which will contain all individual IDs in the file
+	indis = {}
+
+	for indiRow in indiTable:
+		# Each individual is added with a value of 0 to signify that they have not been found in a family
+		indiRow.header = False
+		indiRow.border = False
+		indis[indiRow.get_string(fields = ["ID"]).strip()] = 0
+
+	for famRow in famTable:
+		famRow.header = False
+		famRow.border = False
+		# Looks for the husband of a family in the individual dictionary
+		husbID = famRow.get_string(fields = ["Husband ID"]).strip()
+		# If found, marks as such
+		if husbID in indis:
+			indis[husbID] = 1
+		# If not found, adds an error, provided individual exists
+		elif husbID != "NA":
+			result += "ERROR: INDIVIDUAL: US26: Individual " + husbID + " appears in family ("+famRow.get_string(fields = ["ID"]).strip()+") but has no individual listing.\n"
+		
+		# Looks for the wife of a family and does the same
+		wifeID = famRow.get_string(fields = ["Wife ID"]).strip()
+		if wifeID in indis:
+			indis[wifeID] = 1
+		elif wifeID != "NA":
+			result += "ERROR: INDIVIDUAL: US26: Individual " + wifeID + " appears in family ("+famRow.get_string(fields = ["ID"]).strip()+") but has no individual listing.\n"
+		
+		# Looks for all children of a family in the individual dictionary and does the same
+		children = famRow.get_string(fields = ["Children"]).replace(" ", "").replace("'", "").replace("[", "").replace("]", "").strip().split(",")
+		for child in children:
+			if child in indis:
+				indis[child] = 1
+			elif child != "NA":
+				result += "ERROR: INDIVIDUAL: US26: Individual " + child + " appears in a family ("+famRow.get_string(fields = ["ID"]).strip()+") but has no individual listing.\n"
+
+	# After looping through the families, adds an error for individuals not in a family
+	for indi in indis:
+		if indis[indi] == 0:
+				result += "ERROR: INDIVIDUAL: US26: Individual " + indi + " is listed but does not appear in a family.\n"
+
+	return result
+
+
 # Orders siblings by age
 def checkUS28():
     result = "US28: Siblings from oldest to youngest:\n"
@@ -974,6 +1023,10 @@ def checkUS37():
                 
     return result
 
+# Prints all illegitimate dates
+def checkUS42():
+	return fakeDates
+
 # Flags help select which dict and where to input data
 current = ""
 which_dict = ""
@@ -1070,7 +1123,15 @@ currentDate = datetime.date.today()
 # Iterates through indi dict printing unique identifier and NAME in order
 for key in indi:
     #formats birth date
-    birth = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
+    try:
+    	birth = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
+    except ValueError:
+    	editedDate = formatDate(indi[key]["BIRT"]).split("-")
+    	editedDate[2] = "1"
+    	editedDate = "-".join(editedDate)
+    	birth = datetime.datetime.strptime(editedDate, '%Y-%m-%d').date()
+    	fakeDates+="ERROR: INDIVIDUAL: US42: "+key+" contains illegitimate birth date "+indi[key]["BIRT"]+" which may cause the date to appear incorrectly.\n"
+
     #sets the values for alive and death columns
     if "DEAT" not in indi[key]:
         alive = True
@@ -1085,7 +1146,14 @@ for key in indi:
     #if they're dead, the age will be calculated using death date - birth date
     #also death date variable is made to put into table
     else:
-        death = datetime.datetime.strptime(formatDate(death), '%Y-%m-%d').date()
+        try:
+        	death = datetime.datetime.strptime(formatDate(indi[key]["DEAT_DATE"]), '%Y-%m-%d').date()
+        except ValueError:
+        	editedDate = formatDate(indi[key]["DEAT_DATE"]).split("-")
+        	editedDate[2] = "1"
+        	editedDate = "-".join(editedDate)
+        	death = datetime.datetime.strptime(editedDate, '%Y-%m-%d').date()
+        	fakeDates+="ERROR: INDIVIDUAL: US42: "+key+" contains illegitimate death date "+indi[key]["DEAT_DATE"]+" which may cause the date to appear incorrectly.\n"
         age = (death - birth).days//365
 
     if "FAMS" in indi[key]:
@@ -1106,7 +1174,14 @@ famTable.field_names = ["ID", "Married", "Divorced", "Husband ID", "Husband Name
 # Iterates through fam dict to get the necessary information to use in the prettytable
 for key in fam:
     # Gets the marriage date
-    marry = datetime.datetime.strptime(formatDate(fam[key]["MARR"]), '%Y-%m-%d').date()
+    try:
+    	marry = datetime.datetime.strptime(formatDate(fam[key]["MARR"]), '%Y-%m-%d').date()
+    except ValueError:
+    	editedDate = formatDate(fam[key]["MARR"]).split("-")
+    	editedDate[2] = "1"
+    	editedDate = "-".join(editedDate)
+    	marry = datetime.datetime.strptime(editedDate, '%Y-%m-%d').date()
+    	fakeDates+="ERROR: FAMILY: US42: "+key+" contains illegitimate marriage date "+fam[key]["MARR"]+" which may cause the date to appear incorrectly.\n"
 
     # Gets the divorce date
     if "DIV" not in fam[key]:
@@ -1114,7 +1189,14 @@ for key in fam:
         divorce = "NA"
     else:
         div = True
-        divorce = datetime.datetime.strptime(formatDate(fam[key]["DIV"]), '%Y-%m-%d').date()
+        try:
+        	divorce = datetime.datetime.strptime(formatDate(fam[key]["DIV"]), '%Y-%m-%d').date()
+        except ValueError:
+        	editedDate = formatDate(fam[key]["MARR"]).split("-")
+        	editedDate[2] = "1"
+        	editedDate = "-".join(editedDate)
+        	divorce = datetime.datetime.strptime(editedDate, '%Y-%m-%d').date()
+        	fakeDates+="ERROR: FAMILY: US42: "+key+" contains illegitimate divorce date "+fam[key]["DIV"]+" which may cause the date to appear incorrectly.\n"
 
     # Gets the children of the family
     childs = []
@@ -1156,15 +1238,17 @@ print(famTable)
 # print(checkUS23(), end = "")
 # print(checkUS24(), end = "")
 # print(checkUS25(), end = "")
+# print(checkUS26(), end = "")
 # print(checkUS28(), end = "")
 # print(checkUS29(), end = "")
 # print(checkUS30(), end = "")
 # print(checkUS31(), end = "")
 # print(checkUS32(), end = "")
 # print(checkUS33(), end = "")
-print(checkUS34(), end = "")
-print(checkUS35(), end = "")
+# print(checkUS34(), end = "")
+# print(checkUS35(), end = "")
 # print(checkUS36(), end = "")
 # print(checkUS37(), end = "")
+# print(checkUS42(), end = "")
 
 f.close()
