@@ -898,7 +898,7 @@ def checkUS32():
 
 # Lists orphans (individuals under 18 with both parents deceased)
 def checkUS33():
-    result = "Orphans:\n"
+    result = "US33: Orphans:\n"
     for row in indiTable:
         row.header = False
         row.border = False
@@ -953,8 +953,8 @@ def checkUS35():
         # adds individual's id, name, and birth date to result
         cDate = datetime.date.today()
         birthDate = datetime.datetime.strptime(birth, '%Y-%m-%d').date()
-        if (abs(birthDate - cDate)).days <= 30:
-            result += row.get_string(fields = ["ID"]).strip() + " " + row.get_string(fields = ["Name"]).strip() + " " + birth + "\n"
+        if (cDate - birthDate).days <= 30 and (cDate - birthDate).days >= 0:
+            result += row.get_string(fields = ["ID"]).strip() + " recently born on " + birth + "\n"
     return result
 
 def checkUS36():
@@ -973,8 +973,8 @@ def checkUS36():
             # adds individual's id, name, and death date to result if they have a death date
             cDate = datetime.date.today()
             death = datetime.datetime.strptime(dead, '%Y-%m-%d').date()
-            if (cDate - death).days <= 30:
-                result += row.get_string(fields = ["ID"]).strip() + " " + row.get_string(fields = ["Name"]).strip() + " " + dead + "\n"
+            if (cDate - death).days <= 30 and (cDate - death).days >= 0:
+                result += row.get_string(fields = ["ID"]).strip() + " recently passed away on " + dead + "\n"
     return result
 
 def checkUS37():
@@ -1021,6 +1021,59 @@ def checkUS37():
     for j in schil:
         result += j + " " + indi[j]["NAME"] + "\n"
                 
+    return result
+
+# List the living people with birthdays coming up within the next 30 days
+def checkUS38():
+    result = "US38: Upcoming Birthdays:\n"
+    for row in indiTable:
+        # Remove the header and border from the row
+        row.header = False
+        row.border = False
+        # Check whether the person is dead or alive
+        alive = row.get_string(fields = ["Alive"]).strip()
+        if alive == "True":
+            # Get today month and day
+            today = datetime.datetime.strftime(datetime.date.today(), '%m-%d')
+            # Get the person's birthday
+            birth = row.get_string(fields = ["Birthday"]).strip()
+            # Get only the person's birthday month and day
+            bday = datetime.datetime.strftime(datetime.datetime.strptime(birth, '%Y-%m-%d'), '%m-%d')
+            # Convert the strings into dates for calculations
+            today = datetime.datetime.strptime(today, '%m-%d').date()
+            birthday = datetime.datetime.strptime(bday, '%m-%d').date()
+            person = row.get_string(fields = ["ID"]).strip()
+            # Check if the birthday is within 30 days from today
+            if (birthday - today).days <= 30 and (birthday - today).days >= 0:
+                result += person + " has an upcoming birthday on " + bday + "\n"
+    return result
+
+# Lists the living couples who have anniversaries coming up within the next 30 days
+def checkUS39():
+    result = "US39: Upcoming Anniversaries:\n"
+    for row in famTable:
+        # Remove the header and border from the row
+        row.header = False
+        row.border = False
+        # Check whether the couple is divorced
+        divorced = row.get_string(fields = ["Divorced"]).strip()
+        # Get the husband and wife IDs
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        # If they are still married and are both alive
+        if divorced == "NA" and ("DEAT" not in indi[husbID]) and ("DEAT" not in indi[wifeID]):
+            # Get todays month and day
+            today = datetime.datetime.strftime(datetime.date.today(), '%m-%d')
+            # Get the marriage date
+            marriage = row.get_string(fields = ["Married"]).strip()
+            mdate = datetime.datetime.strftime(datetime.datetime.strptime(marriage, '%Y-%m-%d'), '%m-%d')
+            # Convert the strings into dates for calculations
+            today = datetime.datetime.strptime(today, '%m-%d').date()
+            anniversary = datetime.datetime.strptime(mdate, '%m-%d').date()
+            family = row.get_string(fields = ["ID"]).strip()
+            # Check if the anniversary is within 30 days from today
+            if (anniversary - today).days <= 30 and (anniversary - today).days >= 0:
+                result += family + " has an upcoming anniversary on " + mdate + "\n"
     return result
 
 # Prints all illegitimate dates
@@ -1249,6 +1302,8 @@ print(famTable)
 # print(checkUS35(), end = "")
 # print(checkUS36(), end = "")
 # print(checkUS37(), end = "")
+# print(checkUS38(), end = "")
+# print(checkUS39(), end = "")
 # print(checkUS42(), end = "")
 
 f.close()
