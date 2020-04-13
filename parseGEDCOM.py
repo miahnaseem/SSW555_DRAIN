@@ -1026,7 +1026,7 @@ def checkUS36():
     return result
 
 def checkUS37():
-    result = "US36: Recent Survivors:\n"
+    result = "US37: Recent Survivors:\n"
     # list of survivor's children
     schil = []
     # loops through indiTable
