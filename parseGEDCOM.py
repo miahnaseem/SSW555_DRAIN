@@ -955,6 +955,8 @@ def checkUS33():
             # From the FAMC tag, get family ID
             # With family ID, get husbID ("Dad" ID) and wifeID ("Mom" ID)
             famID = row.get_string(fields = ["Child"]).strip()
+            if famID == "NA":
+            	continue
             husbID = fam[famID]["HUSB"]
             wifeID = fam[famID]["WIFE"]
             # If both parents have "DEAT" value in dict, child is an orpahn
@@ -1047,7 +1049,10 @@ def checkUS37():
                 # gets their ID
                 iD = indi[row.get_string(fields=["ID"]).strip()]
                 # sees what family they are a spouse in
-                famID = indi[row.get_string(fields = ["ID"]).strip()]["FAMS"]
+                try:
+                	famID = indi[row.get_string(fields = ["ID"]).strip()]["FAMS"]
+                except KeyError:
+                	continue
                 sID = ""
                 # finds the survivor's spouse's id
                 if fam[famID]["HUSB"] == iD:
@@ -1225,11 +1230,13 @@ for key in indi:
     try:
     	birth = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
     except ValueError:
+    	invalidDate = indi[key]["BIRT"]
+    	editedDate = indi[key]["BIRT"].split(" ")
+    	editedDate[0] = "1"
+    	indi[key]["BIRT"] = " ".join(editedDate)
     	editedDate = formatDate(indi[key]["BIRT"]).split("-")
-    	editedDate[2] = "1"
-    	editedDate = "-".join(editedDate)
-    	birth = datetime.datetime.strptime(editedDate, '%Y-%m-%d').date()
-    	fakeDates+="ERROR: INDIVIDUAL: US42: "+key+" contains illegitimate birth date "+indi[key]["BIRT"]+" which may cause the date to appear incorrectly.\n"
+    	marry = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
+    	fakeDates+="ERROR: INDIVIDUAL: US42: "+key+" contains illegitimate birth date "+invalidDate+" which may cause the date to appear incorrectly.\n"
 
     #sets the values for alive and death columns
     if "DEAT" not in indi[key]:
@@ -1248,11 +1255,13 @@ for key in indi:
         try:
         	death = datetime.datetime.strptime(formatDate(indi[key]["DEAT_DATE"]), '%Y-%m-%d').date()
         except ValueError:
+        	invalidDate = indi[key]["DEAT_DATE"]
+        	editedDate = indi[key]["DEAT_DATE"].split(" ")
+        	editedDate[0] = "1"
+        	indi[key]["DEAT_DATE"] = " ".join(editedDate)
         	editedDate = formatDate(indi[key]["DEAT_DATE"]).split("-")
-        	editedDate[2] = "1"
-        	editedDate = "-".join(editedDate)
-        	death = datetime.datetime.strptime(editedDate, '%Y-%m-%d').date()
-        	fakeDates+="ERROR: INDIVIDUAL: US42: "+key+" contains illegitimate death date "+indi[key]["DEAT_DATE"]+" which may cause the date to appear incorrectly.\n"
+        	death = datetime.datetime.strptime(formatDate(indi[key]["DEAT_DATE"]), '%Y-%m-%d').date()
+        	fakeDates+="ERROR: INDIVIDUAL: US42: "+key+" contains illegitimate death date "+invalidDate+" which may cause the date to appear incorrectly.\n"
         age = (death - birth).days//365
 
     if "FAMS" in indi[key]:
@@ -1276,11 +1285,13 @@ for key in fam:
     try:
     	marry = datetime.datetime.strptime(formatDate(fam[key]["MARR"]), '%Y-%m-%d').date()
     except ValueError:
+    	invalidDate = fam[key]["MARR"]
+    	editedDate = fam[key]["MARR"].split(" ")
+    	editedDate[0] = "1"
+    	fam[key]["MARR"] = " ".join(editedDate)
     	editedDate = formatDate(fam[key]["MARR"]).split("-")
-    	editedDate[2] = "1"
-    	editedDate = "-".join(editedDate)
-    	marry = datetime.datetime.strptime(editedDate, '%Y-%m-%d').date()
-    	fakeDates+="ERROR: FAMILY: US42: "+key+" contains illegitimate marriage date "+fam[key]["MARR"]+" which may cause the date to appear incorrectly.\n"
+    	marry = datetime.datetime.strptime(formatDate(fam[key]["MARR"]), '%Y-%m-%d').date()
+    	fakeDates+="ERROR: FAMILY: US42: "+key+" contains illegitimate marriage date "+invalidDate+" which may cause the date to appear incorrectly.\n"
 
     # Gets the divorce date
     if "DIV" not in fam[key]:
@@ -1291,11 +1302,13 @@ for key in fam:
         try:
         	divorce = datetime.datetime.strptime(formatDate(fam[key]["DIV"]), '%Y-%m-%d').date()
         except ValueError:
-        	editedDate = formatDate(fam[key]["MARR"]).split("-")
-        	editedDate[2] = "1"
-        	editedDate = "-".join(editedDate)
-        	divorce = datetime.datetime.strptime(editedDate, '%Y-%m-%d').date()
-        	fakeDates+="ERROR: FAMILY: US42: "+key+" contains illegitimate divorce date "+fam[key]["DIV"]+" which may cause the date to appear incorrectly.\n"
+        	invalidDate = fam[key]["DIV"]
+        	editedDate = fam[key]["DIV"].split(" ")
+        	editedDate[0] = "1"
+        	fam[key]["DIV"] = " ".join(editedDate)
+        	editedDate = formatDate(fam[key]["DIV"]).split("-")
+        	divorceDate = datetime.datetime.strptime(formatDate(fam[key]["DIV"]), '%Y-%m-%d').date()
+        	fakeDates+="ERROR: FAMILY: US42: "+key+" contains illegitimate divorce date "+invalidDate+" which may cause the date to appear incorrectly.\n"
 
     # Gets the children of the family
     childs = []
@@ -1313,45 +1326,45 @@ for key in fam:
 print(famTable)
 
 
-# print(checkUS01(), end = "")
-# print(checkUS02(), end = "")
-# print(checkUS03(), end = "")
-# print(checkUS04(), end = "")
-# print(checkUS05(), end = "")
-# print(checkUS06(), end = "")
-# print(checkUS07(), end = "")
-# print(checkUS08(), end = "")
-# print(checkUS09(), end = "")
-# print(checkUS10(), end = "")
-# print(checkUS11(), end = "")
-# print(checkUS12(), end = "")
-# print(checkUS13(), end = "")
-# print(checkUS14(), end = "")
-# print(checkUS15(), end = "")
-# print(checkUS16(), end = "")
-# print(checkUS17(), end = "")
-# print(checkUS18(), end = "")
-# print(checkUS19(), end = "")
-# print(checkUS20(), end = "")
-# print(checkUS21(), end = "")
-# print(checkUS22(), end = "")
-# print(checkUS23(), end = "")
-# print(checkUS24(), end = "")
-# print(checkUS25(), end = "")
-# print(checkUS26(), end = "")
-# print(checkUS27(), end = "")
-# print(checkUS28(), end = "")
-# print(checkUS29(), end = "")
-# print(checkUS30(), end = "")
-# print(checkUS31(), end = "")
-# print(checkUS32(), end = "")
-# print(checkUS33(), end = "")
-# print(checkUS34(), end = "")
-# print(checkUS35(), end = "")
-# print(checkUS36(), end = "")
-# print(checkUS37(), end = "")
-# print(checkUS38(), end = "")
-# print(checkUS39(), end = "")
-# print(checkUS42(), end = "")
+print(checkUS01(), end = "")
+print(checkUS02(), end = "")
+print(checkUS03(), end = "")
+print(checkUS04(), end = "")
+print(checkUS05(), end = "")
+print(checkUS06(), end = "")
+print(checkUS07(), end = "")
+print(checkUS08(), end = "")
+print(checkUS09(), end = "")
+print(checkUS10(), end = "")
+print(checkUS11(), end = "")
+print(checkUS12(), end = "")
+print(checkUS13(), end = "")
+print(checkUS14(), end = "")
+print(checkUS15(), end = "")
+print(checkUS16(), end = "")
+print(checkUS17(), end = "")
+print(checkUS18(), end = "")
+print(checkUS19(), end = "")
+print(checkUS20(), end = "")
+print(checkUS21(), end = "")
+print(checkUS22(), end = "")
+print(checkUS23(), end = "")
+print(checkUS24(), end = "")
+print(checkUS25(), end = "")
+print(checkUS26(), end = "")
+print(checkUS27(), end = "")
+print(checkUS28(), end = "")
+print(checkUS29(), end = "")
+print(checkUS30(), end = "")
+print(checkUS31(), end = "")
+print(checkUS32(), end = "")
+print(checkUS33(), end = "")
+print(checkUS34(), end = "")
+print(checkUS35(), end = "")
+print(checkUS36(), end = "")
+print(checkUS37(), end = "")
+print(checkUS38(), end = "")
+print(checkUS39(), end = "")
+print(checkUS42(), end = "")
 
 f.close()
