@@ -18,6 +18,8 @@ indi = {}
 
 fam = {}
 
+fakeDates = ""
+
 
 # formats the date into YYYY-MM-DD
 def formatDate(date):
@@ -653,6 +655,39 @@ def checkUS21():
 
     return result
 
+# Checks that each id used is unique
+def checkUS22():
+    result = ""
+    # Initialize two lists, one for individual ids, and another for family related ids
+    indiIDs = []
+    famIDs = []
+    # Iterate through indiTable checking each id
+    for row in indiTable:
+        row.header = False
+        row.border = False
+        currentID = row.get_string(fields = ["ID"]).strip()
+        # If individual's id is already in the list, it is a duplicate
+        if currentID in indiIDs:
+            result+= "ERROR: INDIVIDUAL: US22: Individual's ID," + currentID + ", is a duplicate\n"
+        # Otherwise add it to list
+        else:
+            indiIDs.append(currentID)
+    # Iterate through famTable checking each id
+    for row in famTable:
+        row.header = False
+        row.border = False
+        famID = row.get_string(fields = ["ID"]).strip()
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        # If the family ID is already in the list, it is a duplicate
+        # Otherwise add respective ID to the famIDs list
+        if famID in famIDs:
+            result+= "ERROR: FAMILY: US22: Family ID," + famID + ", is a duplicate\n"
+        else:
+            famIDs.append(famID)
+    return result
+
+
 # Checks that each individual has a unique name and birth date
 def checkUS23():
     result = ""
@@ -741,6 +776,66 @@ def checkUS25():
         # Building the result string
         for dupe in dupes:
             result += "ERROR: FAMILY: US25: Family " + row.get_string(fields = ["ID"]).replace(" ", "").strip() + " has multiple individuals with the same first name " + dupe["name"] + " and birthday " + dupe["DOB"] + "\n"
+    return result
+
+# Checks for corresponding entries in the families and individuals
+def checkUS26():
+	result = ""
+	# A dictionary which will contain all individual IDs in the file
+	indis = {}
+
+	for indiRow in indiTable:
+		# Each individual is added with a value of 0 to signify that they have not been found in a family
+		indiRow.header = False
+		indiRow.border = False
+		indis[indiRow.get_string(fields = ["ID"]).strip()] = 0
+
+	for famRow in famTable:
+		famRow.header = False
+		famRow.border = False
+		# Looks for the husband of a family in the individual dictionary
+		husbID = famRow.get_string(fields = ["Husband ID"]).strip()
+		# If found, marks as such
+		if husbID in indis:
+			indis[husbID] = 1
+		# If not found, adds an error, provided individual exists
+		elif husbID != "NA":
+			result += "ERROR: INDIVIDUAL: US26: Individual " + husbID + " appears in family ("+famRow.get_string(fields = ["ID"]).strip()+") but has no individual listing.\n"
+		
+		# Looks for the wife of a family and does the same
+		wifeID = famRow.get_string(fields = ["Wife ID"]).strip()
+		if wifeID in indis:
+			indis[wifeID] = 1
+		elif wifeID != "NA":
+			result += "ERROR: INDIVIDUAL: US26: Individual " + wifeID + " appears in family ("+famRow.get_string(fields = ["ID"]).strip()+") but has no individual listing.\n"
+		
+		# Looks for all children of a family in the individual dictionary and does the same
+		children = famRow.get_string(fields = ["Children"]).replace(" ", "").replace("'", "").replace("[", "").replace("]", "").strip().split(",")
+		for child in children:
+			if child in indis:
+				indis[child] = 1
+			elif child != "NA":
+				result += "ERROR: INDIVIDUAL: US26: Individual " + child + " appears in a family ("+famRow.get_string(fields = ["ID"]).strip()+") but has no individual listing.\n"
+
+	# After looping through the families, adds an error for individuals not in a family
+	for indi in indis:
+		if indis[indi] == 0:
+				result += "ERROR: INDIVIDUAL: US26: Individual " + indi + " is listed but does not appear in a family.\n"
+
+	return result
+
+# Checks to make sure age is listed in the table
+def checkUS27():
+    result = ""
+    for row in indiTable:
+        row.header = False
+        row.border = False
+        # Get each respective individual's id and age
+        indiID = row.get_string(fields = ["ID"]).strip()
+        indiAge = row.get_string(fields = ["Age"]).strip()
+        # If the string of the indiAge variable is empty, that means age is not listed on table
+        if str(indiAge) == "":
+            result += "ERROR: INDIVIDUAL: US27: Individual " + indiID + "does not have age listed in table.\n"
     return result
 
 # Orders siblings by age
@@ -849,7 +944,7 @@ def checkUS32():
 
 # Lists orphans (individuals under 18 with both parents deceased)
 def checkUS33():
-    result = "Orphans:\n"
+    result = "US33: Orphans:\n"
     for row in indiTable:
         row.header = False
         row.border = False
@@ -860,11 +955,54 @@ def checkUS33():
             # From the FAMC tag, get family ID
             # With family ID, get husbID ("Dad" ID) and wifeID ("Mom" ID)
             famID = row.get_string(fields = ["Child"]).strip()
+            if famID == "NA":
+            	continue
             husbID = fam[famID]["HUSB"]
             wifeID = fam[famID]["WIFE"]
             # If both parents have "DEAT" value in dict, child is an orpahn
             if "DEAT" in indi[husbID] and "DEAT" in indi[wifeID]:
                 result += indiID + " " + row.get_string(fields = ["Name"]).strip() + " " + "\n"
+    return result
+
+#List large age differences 
+def checkUS34():
+    result = "US34: Large Age Differences:\n"
+    for row in famTable:
+        # Get rid of the border and header of the pretty table
+        row.border = False
+        row.header = False
+
+        # Gets the relevant data from the pretty table
+        marriageDate = datetime.datetime.strptime(row.get_string(fields = ["Married"]).strip(), '%Y-%m-%d').date()
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        husbDate = datetime.datetime.strptime(formatDate(indi[husbID]["BIRT"]), '%Y-%m-%d').date()
+        wifeDate = datetime.datetime.strptime(formatDate(indi[wifeID]["BIRT"]), '%Y-%m-%d').date()
+
+        # Calculates the age when the husband and wife got married
+        husbAge = (marriageDate - husbDate).days // 365
+        wifeAge = (marriageDate - wifeDate).days // 365
+
+        # Checks if married when the older spouse was more than twice as old as the younger spouse
+        if husbAge > (wifeAge*2) or wifeAge > (husbAge*2):
+            result += husbID + ", born on " + str(husbDate) + ", married "+ wifeID + ", born on "+ str(wifeDate)+ ", on "+ str(marriageDate) + ".\n"
+    return result
+    
+#List recent births
+def checkUS35():
+    result = "US35: Recent Births:\n"
+    # loops through indiTable
+    for row in indiTable:
+        # removes headers and borders
+        row.header = False
+        row.border = False
+        # gets the value under the Birth column
+        birth = row.get_string(fields = ["Birthday"]).strip()
+        # adds individual's id, name, and birth date to result
+        cDate = datetime.date.today()
+        birthDate = datetime.datetime.strptime(birth, '%Y-%m-%d').date()
+        if (cDate - birthDate).days <= 30 and (cDate - birthDate).days >= 0:
+            result += row.get_string(fields = ["ID"]).strip() + " recently born on " + birth + "\n"
     return result
 
 def checkUS36():
@@ -883,8 +1021,8 @@ def checkUS36():
             # adds individual's id, name, and death date to result if they have a death date
             cDate = datetime.date.today()
             death = datetime.datetime.strptime(dead, '%Y-%m-%d').date()
-            if (cDate - death).days <= 30:
-                result += row.get_string(fields = ["ID"]).strip() + " " + row.get_string(fields = ["Name"]).strip() + " " + dead + "\n"
+            if (cDate - death).days <= 30 and (cDate - death).days >= 0:
+                result += row.get_string(fields = ["ID"]).strip() + " recently passed away on " + dead + "\n"
     return result
 
 def checkUS37():
@@ -911,7 +1049,10 @@ def checkUS37():
                 # gets their ID
                 iD = indi[row.get_string(fields=["ID"]).strip()]
                 # sees what family they are a spouse in
-                famID = indi[row.get_string(fields = ["ID"]).strip()]["FAMS"]
+                try:
+                	famID = indi[row.get_string(fields = ["ID"]).strip()]["FAMS"]
+                except KeyError:
+                	continue
                 sID = ""
                 # finds the survivor's spouse's id
                 if fam[famID]["HUSB"] == iD:
@@ -932,6 +1073,63 @@ def checkUS37():
         result += j + " " + indi[j]["NAME"] + "\n"
                 
     return result
+
+# List the living people with birthdays coming up within the next 30 days
+def checkUS38():
+    result = "US38: Upcoming Birthdays:\n"
+    for row in indiTable:
+        # Remove the header and border from the row
+        row.header = False
+        row.border = False
+        # Check whether the person is dead or alive
+        alive = row.get_string(fields = ["Alive"]).strip()
+        if alive == "True":
+            # Get today month and day
+            today = datetime.datetime.strftime(datetime.date.today(), '%m-%d')
+            # Get the person's birthday
+            birth = row.get_string(fields = ["Birthday"]).strip()
+            # Get only the person's birthday month and day
+            bday = datetime.datetime.strftime(datetime.datetime.strptime(birth, '%Y-%m-%d'), '%m-%d')
+            # Convert the strings into dates for calculations
+            today = datetime.datetime.strptime(today, '%m-%d').date()
+            birthday = datetime.datetime.strptime(bday, '%m-%d').date()
+            person = row.get_string(fields = ["ID"]).strip()
+            # Check if the birthday is within 30 days from today
+            if (birthday - today).days <= 30 and (birthday - today).days >= 0:
+                result += person + " has an upcoming birthday on " + bday + "\n"
+    return result
+
+# Lists the living couples who have anniversaries coming up within the next 30 days
+def checkUS39():
+    result = "US39: Upcoming Anniversaries:\n"
+    for row in famTable:
+        # Remove the header and border from the row
+        row.header = False
+        row.border = False
+        # Check whether the couple is divorced
+        divorced = row.get_string(fields = ["Divorced"]).strip()
+        # Get the husband and wife IDs
+        husbID = row.get_string(fields = ["Husband ID"]).strip()
+        wifeID = row.get_string(fields = ["Wife ID"]).strip()
+        # If they are still married and are both alive
+        if divorced == "NA" and ("DEAT" not in indi[husbID]) and ("DEAT" not in indi[wifeID]):
+            # Get todays month and day
+            today = datetime.datetime.strftime(datetime.date.today(), '%m-%d')
+            # Get the marriage date
+            marriage = row.get_string(fields = ["Married"]).strip()
+            mdate = datetime.datetime.strftime(datetime.datetime.strptime(marriage, '%Y-%m-%d'), '%m-%d')
+            # Convert the strings into dates for calculations
+            today = datetime.datetime.strptime(today, '%m-%d').date()
+            anniversary = datetime.datetime.strptime(mdate, '%m-%d').date()
+            family = row.get_string(fields = ["ID"]).strip()
+            # Check if the anniversary is within 30 days from today
+            if (anniversary - today).days <= 30 and (anniversary - today).days >= 0:
+                result += family + " has an upcoming anniversary on " + mdate + "\n"
+    return result
+
+# Prints all illegitimate dates
+def checkUS42():
+	return fakeDates
 
 # Flags help select which dict and where to input data
 current = ""
@@ -1029,7 +1227,17 @@ currentDate = datetime.date.today()
 # Iterates through indi dict printing unique identifier and NAME in order
 for key in indi:
     #formats birth date
-    birth = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
+    try:
+    	birth = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
+    except ValueError:
+    	invalidDate = indi[key]["BIRT"]
+    	editedDate = indi[key]["BIRT"].split(" ")
+    	editedDate[0] = "1"
+    	indi[key]["BIRT"] = " ".join(editedDate)
+    	editedDate = formatDate(indi[key]["BIRT"]).split("-")
+    	marry = datetime.datetime.strptime(formatDate(indi[key]["BIRT"]), '%Y-%m-%d').date()
+    	fakeDates+="ERROR: INDIVIDUAL: US42: "+key+" contains illegitimate birth date "+invalidDate+" which may cause the date to appear incorrectly.\n"
+
     #sets the values for alive and death columns
     if "DEAT" not in indi[key]:
         alive = True
@@ -1044,7 +1252,16 @@ for key in indi:
     #if they're dead, the age will be calculated using death date - birth date
     #also death date variable is made to put into table
     else:
-        death = datetime.datetime.strptime(formatDate(death), '%Y-%m-%d').date()
+        try:
+        	death = datetime.datetime.strptime(formatDate(indi[key]["DEAT_DATE"]), '%Y-%m-%d').date()
+        except ValueError:
+        	invalidDate = indi[key]["DEAT_DATE"]
+        	editedDate = indi[key]["DEAT_DATE"].split(" ")
+        	editedDate[0] = "1"
+        	indi[key]["DEAT_DATE"] = " ".join(editedDate)
+        	editedDate = formatDate(indi[key]["DEAT_DATE"]).split("-")
+        	death = datetime.datetime.strptime(formatDate(indi[key]["DEAT_DATE"]), '%Y-%m-%d').date()
+        	fakeDates+="ERROR: INDIVIDUAL: US42: "+key+" contains illegitimate death date "+invalidDate+" which may cause the date to appear incorrectly.\n"
         age = (death - birth).days//365
 
     if "FAMS" in indi[key]:
@@ -1065,7 +1282,16 @@ famTable.field_names = ["ID", "Married", "Divorced", "Husband ID", "Husband Name
 # Iterates through fam dict to get the necessary information to use in the prettytable
 for key in fam:
     # Gets the marriage date
-    marry = datetime.datetime.strptime(formatDate(fam[key]["MARR"]), '%Y-%m-%d').date()
+    try:
+    	marry = datetime.datetime.strptime(formatDate(fam[key]["MARR"]), '%Y-%m-%d').date()
+    except ValueError:
+    	invalidDate = fam[key]["MARR"]
+    	editedDate = fam[key]["MARR"].split(" ")
+    	editedDate[0] = "1"
+    	fam[key]["MARR"] = " ".join(editedDate)
+    	editedDate = formatDate(fam[key]["MARR"]).split("-")
+    	marry = datetime.datetime.strptime(formatDate(fam[key]["MARR"]), '%Y-%m-%d').date()
+    	fakeDates+="ERROR: FAMILY: US42: "+key+" contains illegitimate marriage date "+invalidDate+" which may cause the date to appear incorrectly.\n"
 
     # Gets the divorce date
     if "DIV" not in fam[key]:
@@ -1073,7 +1299,16 @@ for key in fam:
         divorce = "NA"
     else:
         div = True
-        divorce = datetime.datetime.strptime(formatDate(fam[key]["DIV"]), '%Y-%m-%d').date()
+        try:
+        	divorce = datetime.datetime.strptime(formatDate(fam[key]["DIV"]), '%Y-%m-%d').date()
+        except ValueError:
+        	invalidDate = fam[key]["DIV"]
+        	editedDate = fam[key]["DIV"].split(" ")
+        	editedDate[0] = "1"
+        	fam[key]["DIV"] = " ".join(editedDate)
+        	editedDate = formatDate(fam[key]["DIV"]).split("-")
+        	divorceDate = datetime.datetime.strptime(formatDate(fam[key]["DIV"]), '%Y-%m-%d').date()
+        	fakeDates+="ERROR: FAMILY: US42: "+key+" contains illegitimate divorce date "+invalidDate+" which may cause the date to appear incorrectly.\n"
 
     # Gets the children of the family
     childs = []
@@ -1091,37 +1326,45 @@ for key in fam:
 print(famTable)
 
 
-# print(checkUS01(), end = "")
-# print(checkUS02(), end = "")
-# print(checkUS03(), end = "")
-# print(checkUS04(), end = "")
-# print(checkUS05(), end = "")
-# print(checkUS06(), end = "")
-# print(checkUS07(), end = "")
-# print(checkUS08(), end = "")
-# print(checkUS09(), end = "")
-# print(checkUS10(), end = "")
-# print(checkUS11(), end = "")
-# print(checkUS12(), end = "")
-# print(checkUS13(), end = "")
-# print(checkUS14(), end = "")
-# print(checkUS15(), end = "")
-# print(checkUS16(), end = "")
-# print(checkUS17(), end = "")
-# print(checkUS18(), end = "")
-# print(checkUS19(), end = "")
-# print(checkUS20(), end = "")
-# print(checkUS21(), end = "")
-# print(checkUS23(), end = "")
-# print(checkUS24(), end = "")
-# print(checkUS25(), end = "")
-# print(checkUS28(), end = "")
-# print(checkUS29(), end = "")
-# print(checkUS30(), end = "")
-# print(checkUS31(), end = "")
-# print(checkUS32(), end = "")
-# print(checkUS33(), end = "")
+print(checkUS01(), end = "")
+print(checkUS02(), end = "")
+print(checkUS03(), end = "")
+print(checkUS04(), end = "")
+print(checkUS05(), end = "")
+print(checkUS06(), end = "")
+print(checkUS07(), end = "")
+print(checkUS08(), end = "")
+print(checkUS09(), end = "")
+print(checkUS10(), end = "")
+print(checkUS11(), end = "")
+print(checkUS12(), end = "")
+print(checkUS13(), end = "")
+print(checkUS14(), end = "")
+print(checkUS15(), end = "")
+print(checkUS16(), end = "")
+print(checkUS17(), end = "")
+print(checkUS18(), end = "")
+print(checkUS19(), end = "")
+print(checkUS20(), end = "")
+print(checkUS21(), end = "")
+print(checkUS22(), end = "")
+print(checkUS23(), end = "")
+print(checkUS24(), end = "")
+print(checkUS25(), end = "")
+print(checkUS26(), end = "")
+print(checkUS27(), end = "")
+print(checkUS28(), end = "")
+print(checkUS29(), end = "")
+print(checkUS30(), end = "")
+print(checkUS31(), end = "")
+print(checkUS32(), end = "")
+print(checkUS33(), end = "")
+print(checkUS34(), end = "")
+print(checkUS35(), end = "")
 print(checkUS36(), end = "")
 print(checkUS37(), end = "")
+print(checkUS38(), end = "")
+print(checkUS39(), end = "")
+print(checkUS42(), end = "")
 
 f.close()
